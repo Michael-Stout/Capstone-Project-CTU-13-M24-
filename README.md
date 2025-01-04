@@ -1,8 +1,19 @@
 # README.md
 
+## Dataset Citation & Description
+
+This project uses the CTU-13 Dataset (Garcia et al., 2014), a comprehensive collection of botnet traffic captures created by the CTU University, Czech Republic. The dataset contains thirteen scenarios of different botnet samples, providing real botnet traffic mixed with normal and background traffic. Each scenario captures specific malware running on several machines.
+
+In this analysis, I focus on Scenario 11 (Rbot), which contains botnet traffic captured on August 18, 2011.
+
+Citation:
+Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro Zunino. "An empirical comparison of botnet detection methods", Computers and Security Journal, Elsevier. 2014. Vol 45, pp 100-123.
+
+Dataset URL: https://www.stratosphereips.org/datasets-ctu13
+
 ## Overview
 
-This project focuses on analyzing and detecting botnet network traffic using the **CTU-13**-style dataset(s). It walks through several major steps:
+This project analyzes and detects botnet network traffic using the **CTU-13**-style dataset(s). It walks through several major steps:
 
 1. **Section 1**: Logging Setup and Importing Libraries  
 2. **Section 2**: Loading and Exploring the Data  
@@ -10,195 +21,197 @@ This project focuses on analyzing and detecting botnet network traffic using the
 4. **Section 4**: Visualizations of Traffic Patterns  
 5. **Section 5**: Train–Test Split and Multi-Model Pipeline  
 6. **Section 6**: Model Comparison  
-7. **Section 7**: Evaluating KNN on Multiple Datasets  
+7. **Section 7**: Evaluating KNN on Multiple Datasets
 
-Below is a summary of each step, expanded modeling insights, and final findings and recommendations.
+Below is a summary of each step's findings, key observations, and final results.
+
+You may review the execution [log](logs/analysis.log) or [plots](plots/) to verify the results or help independently analyze my findings.
+
+
 
 ---
 
 ## Section 1: Logging Setup and Libraries
 
-- Configured logging to capture output in a log file while optionally printing to console.
+- Configured logging to capture the output in a log file while optionally printing to the console.
 - Imported and declared project-wide constants (e.g., **`RANDOM_STATE`**, **`TEST_SIZE`**, etc.).
 - Provided a helper function `log_and_print(msg, logger, level='info')` to synchronize logs and console prints.
 
-**Key Point**: This ensures consistent, well-formatted logs for each section’s output, improving traceability and reproducibility.
+**Key Point**: This ensures consistent, well-formatted logs for each section’s output, improving traceability.
 
 ---
 
 ## Section 2: Loading & Exploring Data
 
 - Successfully loaded the main dataset (e.g., `11-Rbot-20110818-2.binetflow.csv`) of shape **(107251, 15)**.
-- Displayed a sample of rows and the dataset’s basic info, including column names and dtypes.
+- Displayed sample rows and the dataset’s basic info, including column names and dtypes.
+
+|    | StartTime                  |     Dur | Proto   | SrcAddr       |   Sport | Dir   | DstAddr       |   Dport | State   |   sTos |   dTos |   TotPkts |   TotBytes |   SrcBytes | Label                           |
+|---:|:---------------------------|--------:|:--------|:--------------|--------:|:------|:--------------|--------:|:--------|-------:|-------:|----------:|-----------:|-----------:|:--------------------------------|
+|  0 | 2011/08/18 15:40:53.826372 | 2.98325 | tcp     | 76.76.172.248 |   63577 | ->    | 147.32.84.229 |   13363 | SR_SA   |      0 |      0 |         3 |        184 |        122 | flow=Background-TCP-Established |
+|  1 | 2011/08/18 15:40:55.435494 | 2.90603 | tcp     | 76.76.172.248 |   63580 | ->    | 147.32.84.229 |     443 | SR_SA   |      0 |      0 |         3 |        184 |        122 | flow=Background-TCP-Established |
+|  2 | 2011/08/18 15:40:57.060613 | 3.03052 | tcp     | 76.76.172.248 |   63582 | ->    | 147.32.84.229 |      80 | SR_SA   |      0 |      0 |         3 |        184 |        122 | flow=Background-TCP-Established |
+|  3 | 2011/08/18 15:40:56.809619 | 6.01623 | tcp     | 76.76.172.248 |   63577 | ->    | 147.32.84.229 |   13363 | SR_SA   |      0 |      0 |         3 |        184 |        122 | flow=Background-TCP-Established |
+|  4 | 2011/08/18 15:40:58.341523 | 6.12472 | tcp     | 76.76.172.248 |   63580 | ->    | 147.32.84.229 |     443 | SR_SA   |      0 |      0 |         3 |        184 |        122 | flow=Background-TCP-Established |
 
 The dataset includes:
 - **Network flow details** like `Proto`, `SrcAddr`, `DstAddr`, `TotBytes`, etc.
 - A `Label` column identifying traffic as `Background`, `Botnet`, or normal.
 
-Through initial exploration, we observed:
-- Mixed columns: floats (`Dur`, `sTos`, `dTos`), ints (`TotPkts`, `TotBytes`, etc.), and objects (`Proto`, `Label`, etc.).
-- Some missing values (e.g., `Sport` and `Dport` columns are not complete).
+This initial exploration shows the variety of column types:
+- **Float** columns (`Dur`, `sTos`, `dTos`),
+- **Integer** columns (`TotPkts`, `TotBytes`, `SrcBytes`),
+- **Object** columns (`Proto`, `Label`, etc.).
+
+RangeIndex: 107251 entries, 0 to 107250
+Data columns (total 15 columns):
+ #   Column     Non-Null Count   Dtype  
+---  ------     --------------   -----  
+ 0   StartTime  107251 non-null  object 
+ 1   Dur        107251 non-null  float64
+ 2   Proto      107251 non-null  object 
+ 3   SrcAddr    107251 non-null  object 
+ 4   Sport      106788 non-null  object 
+ 5   Dir        107251 non-null  object 
+ 6   DstAddr    107251 non-null  object 
+ 7   Dport      99351 non-null   object 
+ 8   State      107160 non-null  object 
+ 9   sTos       106271 non-null  float64
+ 10  dTos       90292 non-null   float64
+ 11  TotPkts    107251 non-null  int64  
+ 12  TotBytes   107251 non-null  int64  
+ 13  SrcBytes   107251 non-null  int64  
+ 14  Label      107251 non-null  object 
+dtypes: float64(3), int64(3), object(9)
+memory usage: 12.3+ MB
 
 ---
 
 ## Section 3: Basic Data Cleaning & Feature Engineering
 
-1. **Removed** rows labeled `Background`.
-2. **Created** a binary `Botnet` column (`1` if flow is botnet, `0` otherwise), dropping `Label`.
+1. **Removed** any rows labeled `Background` from the dataset.
+2. **Created** a binary `Botnet` column (`1` if the flow is a botnet, `0` otherwise), then dropped the original `Label`.
 3. **Dropped** columns `sTos`, `dTos`, `StartTime`.
-4. **Engineered**:
-   - `BytesPerSecond = TotBytes / Dur`
-   - `PktsPerSecond = TotPkts / Dur`
-   - `SrcAddrEntropy` & `DstAddrEntropy` (Shannon entropy of IP addresses)
-   - `SportRange` & `DportRange` (e.g., `WellKnown`, `Registered`, `Ephemeral`).
-5. **Label-encoded** categorical columns like `Proto`, `Dir`, `State`, etc.
+4. **Engineered** features:
+   - `BytesPerSecond` (`TotBytes / Dur`),  
+   - `PktsPerSecond` (`TotPkts / Dur`),  
+   - `SrcAddrEntropy` and `DstAddrEntropy` (Shannon entropy of IP string),  
+   - `SportRange` and `DportRange` (e.g., `WellKnown 0 - 1023`, `Registered 1024 - 49151`, `Ephemeral/Dynamic 49152 - 65535`).
+5. **Label-encoded** categorical columns (like `Proto`, `Dir`, `State`, etc.) into numeric codes.
 
 **Result**:  
-- After cleaning, the feature matrix shape was **(10882, 15)**, focusing on relevant columns.
-- A quick `.head()` shows new columns and transformations, verifying correct data types.
+- Feature matrix shape ended up as **(10882, 15)** after removing background flows and retaining the relevant columns.  
+- A quick `.head()` showed the new columns and transformations.
 
 ---
 
 ## Section 4: Visualizations
 
-We generated and saved several plots in the `plots/` directory:
+Several plots were generated and saved to the `plots/` folder:
 
-1. **Bar & Pie Chart** of Botnet vs Normal — reveals the proportion of each label.
-2. **Correlation Heatmap** of numeric columns — highlights relationships (e.g., `PktsPerSecond` vs. `BytesPerSecond`).
-3. **Additional Plots** for distribution insights:
-   - **Count plot** of port ranges vs. botnet label.
+1. **Bar & Pie Chart** of Botnet vs Normal:
+   - Showed how many flows are botnet vs. normal traffic.
+2. **Correlation Heatmap** (numeric columns):
+   - Indicated which columns are most correlated with each other.
+3. **Additional Distribution Plots**:
+   - **Count plot** comparing, e.g., `SportRange` vs. Botnet label.
    - **Box plot** of `PktsPerSecond` by Botnet label.
-   - **Strip plot** (replacing a swarm) for `BytesPerSecond` by Botnet.
+   - **Strip plot** of `BytesPerSecond` by Botnet label.
 
-These helped confirm certain features (like packet or byte rates) strongly differ between normal and botnet flows.
+![Botnet Distribution](plots/botnet_distribution.png)
+
+![Correlation Heatmap](plots/correlation_heatmap.png)
+
+![Port Range Distribution by Botnet](plots/countplot_sortrange_botnet.png)
+
+![Packets per Second by Botnet](plots/boxplot_pktspersec_botnet.png)
+
+![Bytes per Second by Botnet](plots/stripplot_bytespersec_botnet.png)
+
+These visual insights confirmed that certain features (like packet rates and total bytes) differ significantly between normal and botnet flows.
 
 ---
 
 ## Section 5: Train–Test Split and Multi-Model Pipeline
 
-- **Split** the data: ~80% train, ~20% test.
-- Built a pipeline for **scaling** (StandardScaler) + each classifier.
-- Ran **GridSearchCV** on multiple models: 
-  - RandomForest  
-  - DecisionTree  
-  - NaiveBayes  
-  - KNN  
-  - SVM  
-  - LogisticRegression  
-  - GradientBoosting  
-- Computed performance metrics:
-  - **Accuracy**, **Precision**, **Recall**, **F1**, **ROC AUC**, **Log Loss**, **mAP**.
-- Saved confusion matrices, ROC curves, top-features charts.
-
-**Observation**: Models like **RandomForest**, **DecisionTree**, **KNN**, **GradientBoosting** often achieve near-perfect scores on this data. 
-
----
-
-## Modeling: Deeper Interpretation & Evaluation Metrics
-
-### Deeper Interpretation of Models
-
-1. **Tree-Based Models (RandomForest, DecisionTree, GradientBoosting)**  
-   - Identify key features like **`SrcBytes`**, **`TotBytes`**, or **`PktsPerSecond`**.  
-   - Provide interpretability via feature importances (visible in top-10 bar charts).  
-   - Indicate that a few core features are enough to robustly separate botnet from normal flows.
-
-2. **NaiveBayes**  
-   - Simple and fast but less robust if feature independence assumptions are violated.  
-   - Still performs well, though not as perfectly as the ensemble methods.
-
-3. **KNN**  
-   - Distances in scaled feature space prove highly separable for botnet vs. normal.  
-   - Achieved near-perfect classification with moderate training time.
-
-4. **SVM**  
-   - With `rbf` kernel, also excels at separating the classes.  
-   - Tends to be more computationally expensive depending on data size and hyperparameters.
-
-5. **LogisticRegression**  
-   - Interpretable coefficients revealing how features push predictions toward botnet vs. normal.  
-   - Slower in training with L1 penalty, but still effective.
-
-### Deeper Interpretation of Evaluation Metric
-
-**F1 Score** was the primary metric used in GridSearchCV. We also looked at **ROC AUC**, **Log Loss**, and **mAP**:
-
-- **F1 Score**: 
-  - The harmonic mean of precision and recall.  
-  - Particularly relevant when we want to avoid both false positives (precision) and false negatives (recall).  
-  - Especially crucial in security contexts where both false alarms (too many false positives) and missed threats (false negatives) are costly.
-
-- **ROC AUC & mAP**: 
-  - Evaluate the ranking quality of predicted probabilities, indicating how well the model separates classes overall.  
-  - High AUC (>0.99) signals the model is extremely capable of distinguishing botnet from normal traffic across probability thresholds.
-
-### Rationale for Use of These Metrics
-
-1. **Security Risk**: Missing a botnet threat is severe; thus, recall is critical. But we also want high precision so analysts aren’t flooded with false positives. **F1** balances both.
-2. **Operational Impact**: A high **ROC AUC** and **mAP** confirm that if we adjust thresholds, the model can still effectively separate normal vs. botnet. This is crucial for different security sensitivities.
-3. **Business Context**: Minimizing downtime or investigations of benign traffic is essential. The chosen metrics highlight overall detection accuracy and the cost of errors from multiple angles.
+- Split the data into **Train** (≈80%) and **Test** (≈20%) sets.
+- Created a pipeline for **scaling** followed by a chosen classifier.
+- Ran **GridSearchCV** across multiple models, including:
+  - **RandomForest**  
+  - **DecisionTree**  
+  - **NaiveBayes**  
+  - **KNN**  
+  - **SVM**  
+  - **LogisticRegression**  
+  - **GradientBoosting**  
+- Computed various metrics (Accuracy, Precision, Recall, F1, ROC AUC, etc.).
+- Plotted confusion matrices, ROC curves, and top features and stored them in `plots/.`
+**Finding**: Each model performed extremely well—several hit almost-perfect metrics. Logged times show that training time can differ significantly (e.g., ~2s for RandomForest vs. ~20s for LogisticRegression).
 
 ---
 
 ## Section 6: Model Comparison
 
-A table summarized each model’s performance:
+This table summarizes the final results:
 
 | Model              | CV F1   | Test Accuracy | Test Precision | Test Recall | Test F1  | ROC AUC  | Train Time (s) |
 |--------------------|---------|--------------|---------------|------------|----------|----------|----------------|
 | RandomForest       | 0.9992  | 0.9986       | 0.9988        | 0.9994     | 0.9991   | ~1.0000  | ~2.14          |
 | DecisionTree       | 0.9991  | 0.9991       | 0.9988        | 1.0000     | 0.9994   | 0.9982   | ~0.09          |
 | NaiveBayes         | 0.9865  | 0.9816       | 0.9778        | 0.9982     | 0.9879   | 0.9963   | ~0.04          |
-| **KNN**            | 0.9988  | 0.9991       | 1.0000        | 0.9988     | 0.9994   | 1.0000   | ~0.20          |
+| **KNN**            | **0.9988**  | **0.9991**       | **1.0000**        | **0.9988**     | **0.9994**   | **1.0000**   | **~0.20**         |
 | SVM                | 0.9953  | 0.9963       | 0.9957        | 0.9994     | 0.9976   | 0.9999   | ~3.75          |
 | LogisticRegression | 0.9917  | 0.9890       | 0.9867        | 0.9988     | 0.9927   | 0.9997   | ~21.13         |
 | GradientBoosting   | 0.9992  | 0.9986       | 0.9988        | 0.9994     | 0.9991   | 1.0000   | ~1.37          |
 
-**Observation**: KNN edges out or ties for top performance across multiple metrics, with near-perfect F1 and AUC. Tree-based ensembles also excel. Logistic regression is strong yet more time-consuming with certain hyperparameters.
+![Model Metrics Comparison](plots/model_metrics_scaled_line.png)
+
+From these, **KNN** performed extremely well overall (Accuracy, F1, ROC AUC) and had moderate train time. Other tree-based or ensemble models (RandomForest, GradientBoosting) are also near-perfect. 
 
 ---
 
-## Section 7: Evaluating KNN on Multiple Datasets
+## Section 7: Evaluate KNN on Multiple Datasets
 
-- We used a function (`load_and_prepare_data`) replicating the cleaning & engineering steps for each dataset.
-- Tested **KNN** with best hyperparams (e.g., `n_neighbors=5, weights='distance'`) across multiple `.binetflow` files from CTU-13.
-- Found that KNN typically scored extremely high (often near 1.0 in Accuracy, F1, etc.) but occasionally dropped slightly on certain data (e.g., ~98% on “9-Neris-20110817”).
+**Please Note:** I could not upload all the CTU-13 datasets due to file size constraints. To run this portion of my code, you must download and install them in a data folder at the same level as my Jupyter Notebook.
 
-Overall, **KNN** validated well across these additional sets, reinforcing its robustness as a go-to model for botnet detection in this environment.
+- I reused a dedicated function (`load_and_prepare_data`) to replicate cleaning & feature engineering.
+- Then tested **KNN** (using its best parameters) across ~12 additional `.binetflow` CSV files from **CTU-13**.
+- For most sets, the KNN model achieved extremely high performance (often near 1.0 in accuracy, F1, etc.).
+- One dataset (`9-Neris-20110817.binetflow.csv`) gave lower results (~97.7% accuracy) compared to the others but was still strong.
+
+A final table summarizes each dataset’s evaluation metrics:
+
+| Dataset                           |   TrainTimeSec |   Accuracy |   Precision |   Recall |       F1 |   Specificity |     LogLoss |      mAP |   ROC_AUC | ConfusionMatrix                |
+|:----------------------------------|---------------:|-----------:|------------:|---------:|---------:|--------------:|------------:|---------:|----------:|:-------------------------------|
+| 1-Neris-20110810.binetflow.csv    |    0.015136    |   0.99979  |    0.999878 | 0.999756 | 0.999817 |      0.999835 | 0.00279375  | 0.999878 |  0.999918 | [[6077    1]  [   2 8190]]     |
+| 2-Neris-20110811.binetflow.csv    |    0.005373    |   0.999667 |    0.999523 | 1        | 0.999761 |      0.998904 | 0.00658446  | 0.999761 |  0.999726 | [[1822    2]  [   0 4189]]     |
+| 3-Rbot-20110812.binetflow.csv     |    0.030256    |   1        |    1        | 1        | 1        |      1        | 3.15146e-05 | 1        |  1        | [[23378     0]  [    0  5364]] |
+| 4-Rbot-20110815.binetflow.csv     |    0.00516582  |   1        |    1        | 1        | 1        |      1        | 0.000155249 | 1        |  1        | [[5054    0]  [   0  516]]     |
+| 5-Virut-20110815-2.binetflow.csv  |    0.000963926 |   1        |    1        | 1        | 1        |      1        | 2.22045e-16 | 1        |  1        | [[936   0]  [  0 180]]         |
+| 6-Menti-20110816.binetflow.csv    |    0.00205517  |   1        |    1        | 1        | 1        |      1        | 0.000582949 | 1        |  1        | [[1499    0]  [   0  926]]     |
+| 7-Sogou-20110816-2.binetflow.csv  |    0.000378847 |   1        |    1        | 1        | 1        |      1        | 0.0016563   | 1        |  1        | [[335   0]  [  0  13]]         |
+| 8-Murlo-20110816-3.binetflow.csv  |    0.016454    |   0.999937 |    1        | 0.999184 | 0.999592 |      1        | 5.13427e-05 | 1        |  1        | [[14565     0]  [    1  1224]] |
+| 9-Neris-20110817.binetflow.csv    |    0.0545599   |   0.976995 |    0.983148 | 0.990243 | 0.986682 |      0.895211 | 0.29856     | 0.992396 |  0.97534  | [[ 5365   628]  [  361 36637]] |
+| 10-Rbot-20110818.binetflow.csv    |    0.023227    |   0.999304 |    0.999765 | 0.999436 | 0.9996   |      0.998422 | 0.0129311   | 0.99991  |  0.999672 | [[ 3164     5]  [   12 21259]] |
+| **11-Rbot-20110818-2.binetflow.csv**  |    **0.00186992**  |   **0.999081** |    **1**        | **0.998775** | **0.999387** |      **1**        | **0.00168051**  | **1**        |  **0.999999** | **[[ 544    0]  [   2 1631]]**     |
+| 12-NsisAy-20110819.binetflow.csv  |    0.00223398  |   0.977551 |    0.962085 | 0.935484 | 0.948598 |      0.989515 | 0.253078    | 0.974369 |  0.985308 | [[1510   16]  [  28  406]]     |
+| 13-Virut-20110815-3.binetflow.csv |    0.014396    |   0.999722 |    0.999875 | 0.999625 | 0.99975  |      0.999843 | 0.00281726  | 0.999944 |  0.999937 | [[6387    1]  [   3 7998]]     |
+
+**Key Outcome**: KNN is highly effective across multiple network traffic files, often scoring near-perfect or perfect classification. However, one or two datasets (e.g., “9-Neris-20110817”) show the possibility of slightly lower performance (~97–98% accuracy), but still strong.
 
 ---
 
-## Findings & Recommendations
+## Conclusions
 
-### Business Understanding & Significance
+1. **Data**: 
+   - The CTU-13 style data is large, with multiple `.binetflow` files. Many background flows were removed, leaving botnet vs. normal.
+2. **Features**: 
+   - Derived rates (Pkts/Bytes per second), port ranges, and entropy measures help separate botnet from normal flows.
+3. **Models**: 
+   - All tested classifiers performed well, but **KNN** was singled out for best overall metrics (e.g., near-perfect F1 and AUC in many cases).
+4. **Next Steps**: 
+   - Investigate potential differences in performance on especially large or diverse network captures.  
+   - Evaluate real-time or streaming detection feasibility.  
+   - Explore advanced feature engineering (deep packet inspection, time-series features, etc.) or use cross‑dataset training vs. testing to gauge generalization.
 
-- We used the **CTU-13** dataset to identify malicious botnet traffic.  
-- Botnets pose a **significant risk** to businesses: they can exfiltrate data, disrupt operations, or launch DDoS attacks.  
-- **Detection is crucial** to mitigate potential financial and reputational damage.  
-- AI/ML solutions **assist** security personnel by automatically flagging suspicious traffic so analysts can focus on **zero-day threats** and higher-level incident response instead of sifting benign flows.
-
-### Clean & Organized Notebook
-
-- Each section systematically handles data exploration, cleaning, feature engineering, and modeling.  
-- The notebook (or `.py` file) logs each step for reproducibility and clarity.
-
-### Correct & Concise Interpretation of Statistics
-
-- Descriptive stats confirm the distribution of normal vs. botnet flows.  
-- Inferential results (F1, AUC) confirm that certain features strongly separate classes.
-
-### Key Findings for a Non-Technical Audience
-
-- **We can detect botnet traffic with near 100% accuracy** across several major threats (Rbot, Neris, etc.).  
-- The top features revolve around **bytes, packets, and addresses**, highlighting that malicious flows can be spotted by behavior patterns (e.g., extremely high or low rates).
-- Automated ML detection drastically reduces manpower needed to filter out benign traffic.
-
-### Next Steps & Recommendations
-
-1. **Deploy** the KNN or similarly high-performing model in a production environment—possibly as a real-time intrusion detection module.
-2. **Run** against new PCAP files (unseen traffic) to confirm generalization beyond CTU-13.
-3. **Tune** the model for specific botnet families or custom threshold adjustments, especially if zero-day variants appear with new behaviors.
-4. **Incorporate** additional features (e.g., DNS queries, domain-based features, time-series patterns) to improve coverage of emerging threats.
-5. **Expand** to a full pipeline that integrates with SIEM systems, alerting security teams only when anomalous traffic crosses defined thresholds.
-
-**Bottom Line**: By combining thorough data cleaning, robust feature engineering, and extensive model comparisons, we achieved a state-of-the-art detection pipeline. **KNN** is singled out as the best overall model in these experiments, delivering near‑perfect detection across multiple CTU-13 `.binetflow` files, thereby significantly reducing security staff workload and enhancing protection against botnet threats.
+**Bottom Line**: The pipeline effectively identifies botnet flows. KNN performs best in these experiments, with near-perfect detection across multiple dataset files.
