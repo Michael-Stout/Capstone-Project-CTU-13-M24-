@@ -2,13 +2,13 @@
 **Author:** Michael Stout
 
 ## Executive Summary
-This project analyzes network traffic data to detect botnet activities using machine learning techniques. The analysis processed over 107,000 network traffic records, identifying patterns between normal and botnet traffic. The project successfully developed enhanced feature engineering techniques and visualization methods to improve botnet detection accuracy.
+This project uses machine learning techniques to analyze network traffic data to detect botnet activities. The analysis processed over 107,000 network traffic records, identifying patterns between normal and botnet traffic. The project successfully developed enhanced feature engineering techniques and visualization methods to improve botnet detection accuracy.
 
 ## Rationale
 Modern cyber threats, particularly botnets and zero-day exploits, pose significant risks to network security. Traditional signature-based detection methods often fail to identify new or evolving threats. Machine learning approaches offer the potential for more adaptive and proactive defense mechanisms, which are crucial for protecting individual users and organizations from emerging cyber threats.
 
 ## Research Question
-Can machine learning techniques enhance the detection of zero-day exploits and botnet activities within network traffic by looking at network traffic patterns to identify malicous activity?
+Can machine learning techniques enhance the detection of zero-day exploits and botnet activities within network traffic by looking at network traffic patterns to identify malicious activity?
 
 ## Data Sources
 This study utilized the [CTU-13 Dataset](https://www.stratosphereips.org/datasets-ctu13#:~:text=The%20CTU%2D13%20is%20a,normal%20traffic%20and%20background%20traffic.), specifically Scenario 11, which is part of a comprehensive botnet capture effort by the Czech Technical University (CTU) in Prague. The CTU-13 dataset is a labeled dataset of botnet, normal, and background traffic captured in 2011 from the CTU University network.
