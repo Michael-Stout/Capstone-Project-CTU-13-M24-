@@ -92,7 +92,7 @@ Analysis:
 
 
 #### Traffic Characteristics
-**Botnet Source → Target Destination Graph**  
+**Botnet Source → Target Destination**  
    ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
    
    Analysis:  
@@ -101,7 +101,7 @@ Analysis:
 
 
 
-**Time-Based Packets Chart**  
+**Time-Based Packets**  
    ![Time-based Packets Chart (Scaled, All Traffic)](./plots/S2_time_based_totpkts_all_scaled.png)  
   
    Analysis:  
@@ -111,7 +111,7 @@ Analysis:
 
 
 
-**Time-Based Average Duration Chart**  
+**Time-Based Average Duration**  
    ![Time-based Average Duration Chart (Scaled, All Traffic)](./plots/S2_time_based_avg_dur_all_scaled.png)  
    
    Analysis:  
@@ -232,58 +232,70 @@ In this section, I removed or consolidated certain features to create derived fe
 
 
 ### Model Development
+
 **Section 4: Visualizations**
 
-This section presents additional plots that focus on distinguishing **Botnet vs. Normal** traffic. These visualizations allow us to see how critical features (BytesPerSecond, PktsPerSecond, SportRange, etc.) vary between the two classes.
+Here, I present information that focuses on distinguishing between Botnet and Normal traffic to see how critical features (BytesPerSecond, PktsPerSecond, SportRange, etc.) vary between the two classes.
 
-1. **Botnet vs Normal Distribution**  
+Botnet vs Normal Distribution**  
    ![Botnet vs Normal Distribution](./plots/S4_botnet_distribution.png)  
-   **Analysis:**  
-   - Bar/Pie chart specifically showing **8,164 botnet flows vs. 2,718 normal flows**.  
+
+   Analysis:
+   - The bar/Pie chart shows 8,164 botnet flows vs. 2,718 normal flows.  
    - Botnet is about 75% of the combined Botnet+Normal subset.  
    - Implies a strong class imbalance in that subset alone.
 
 
-2. **Hierarchically Clustered Correlation Heatmap**  
+**Hierarchically Clustered Correlation Heatmap**  
    ![Hierarchically Clustered Correlation Heatmap](./plots/S4_correlation_clustered.png)  
-   **Analysis:**  
+
+
+   Analysis:  
    - Groups correlated features together, revealing strong relationships (e.g., `PktsPerSecond` ↔ `BytesPerSecond`).  
    - BytePktRatio has a moderate negative correlation with some others.  
    - Helps shape which features might be redundant.
 
 
-3. **Count Plot of SportRange by Botnet Label**  
+**Count Plot of SportRange by Botnet Label**  
    ![Count Plot of SportRange by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_countplot_sortrange_botnet.png)  
-   **Analysis:**  
+
+
+   **Analysis:  
    - SportRange = 2 (ephemeral range) dominates botnet flows (red).  
    - Normal flows have more variety in port usage.  
    - Confirms that botnet C2 or spamming often uses ephemeral or registered ports.
 
 
-4. **Box Plot of PktsPerSecond by Botnet Label**  
+6. **Box Plot of PktsPerSecond by Botnet Label**  
    ![Box Plot of PktsPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_boxplot_pktspersec_botnet.png)  
-   **Analysis:**  
+
+
+   Analysis:  
    - Normal traffic (green) has a wide distribution, including outliers up to 12,000 pkts/sec.  
    The botnet (red) is mostly near zero, implying minimal or very short bursts.  
    - Highlights the difference in packet rates.
 
 
-5. **Strip Plot of BytesPerSecond by Botnet Label**  
+7. **Strip Plot of BytesPerSecond by Botnet Label**  
    ![Strip Plot of BytesPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_stripplot_bytespersec_botnet.png)  
-   **Analysis:**  
+  
+
+   Analysis:  
    - Plots individual flows, revealing that **normal** can have extremely high BytesPerSecond while **botnet** mostly remains near zero or in discrete bursts.  
    - A few outliers in botnet traffic still stand out at ~1.5e6 B/s.
 
 
-6. **Pair Plot (Numeric Features) with Hue=Botnet**  
+8. **Pair Plot of Numeric Features**  
    ![Pair Plot of Numeric Features (Green=Normal, Red=Botnet)](./plots/S4_pairplot_numeric_botnet.png)  
-   **Analysis:**  
+
+
+   Analysis:  
    - Shows scatter relationships among features (TotPkts, TotBytes, BytesPerSecond, BytePktRatio, etc.).  
    - Botnet points (red) often cluster distinctly from Normal (green), suggesting high separability.  
    - Helps identify key features for classification.
 
 
-7. **Violin Plot of BytesPerSecond by Botnet Label**  
+10. **Violin Plot of BytesPerSecond by Botnet Label**  
    ![Violin Plot of BytesPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_violinplot_bytespersec_botnet.png)  
    **Analysis:**  
    - Normal traffic (green) covers a broad range of BytesPerSecond, from near-zero to over 1e6.  
