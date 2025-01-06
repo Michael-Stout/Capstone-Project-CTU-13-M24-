@@ -48,15 +48,14 @@ At the start of the project, I loaded the necessary Python libraries to load and
 
 In this section, I **loaded** the raw network traffic data (107,251 records) and **explored** its structure. Specifically, I:
 
-- **Handled missing values** for ports, states, and traffic characteristics.
-- **Grouped traffic types** into **Background**, **Botnet**, and **Normal** categories.
-- **Created enhanced features**, such as:
-  - **BytePktRatio** (ratio of total bytes to total packets)
-  - **Entropy** metrics for Source and Destination IP
-  - **Traffic flow** statistics
-  - **Duration categories** (`very_short`, `short`, `medium`, `long`)
+**Types of Network Traffic**  
+   ![Network Traffic](./plots/S2_target_distribution_combined.png)  
+   **Analysis:**  
+   - **Background (blue):** 96,369 records (~89.9%)  
+   - **Botnet (red):** 8,164 records (~7.6%)  
+   - **Normal (green):** 2,718 records (~2.5%)  
+   - Significant class imbalance with background dominating, which will be dropped
 
-Below are the primary tables and plots illustrating this data exploration:
 
 #### Missing Values per Column
 |            |     0 |
@@ -85,8 +84,8 @@ Below are the primary tables and plots illustrating this data exploration:
 - **dTos** is missing in 16,959 flows (often unrecorded or irrelevant).  
 
 ---
-**Botnet Source → Target Destination Graph**  
-   ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
+#### Botnet Traffic & Targets**  
+   ![Botnet Traffic & Targets(./plots/S2_botnet_src_dist_plot.png)  
    **Analysis:**  
    - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
    - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
@@ -111,14 +110,6 @@ Below are the primary tables and plots illustrating this data exploration:
 - Relatively few unique Botnet source IPs (3) vs. many background IPs.
 
 #### Exploration Plots
-
-1. **Distribution of Target Variable**  
-   ![Distribution of Target Variable](./plots/S2_target_distribution_combined.png)  
-   **Analysis:**  
-   - **Background (blue):** 96,369 records (~89.9%)  
-   - **Botnet (red):** 8,164 records (~7.6%)  
-   - **Normal (green):** 2,718 records (~2.5%)  
-   - Significant class imbalance with background dominating.
 
 6. **Time-Based Packets Chart**  
    ![Time-based Packets Chart (Scaled, All Traffic)](./plots/S2_time_based_totpkts_all_scaled.png)  
