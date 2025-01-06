@@ -49,12 +49,11 @@ At the start of the project, I loaded the necessary Python libraries to load and
 In this section, I **loaded** the raw network traffic data (107,251 records) and **explored** its structure. Specifically, I:
 
 **Types of Network Traffic**  
-   ![Network Traffic](./plots/S2_target_distribution_combined.png)  
+8. **Botnet Sources & Targets**  
+   ![](./plots/S2_botnet_src_dist_plot.png)  
    **Analysis:**  
-   - **Background (blue):** 96,369 records (~89.9%)  
-   - **Botnet (red):** 8,164 records (~7.6%)  
-   - **Normal (green):** 2,718 records (~2.5%)  
-   - Significant class imbalance with background dominating, which will be dropped
+   - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
+   - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
 
 
 #### Missing Values per Column
