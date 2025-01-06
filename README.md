@@ -121,7 +121,7 @@ Analysis:
 
 
 
-### Feature Engineering* 
+### Feature Engineering
 **Section 3: Data Cleaning & Feature Engineering***
 
 In this section, I removed or consolidated certain features to create derived features (e.g., BytesPerSecond, PktsPerSecond, IP entropy) and applied categorical encoding.  
