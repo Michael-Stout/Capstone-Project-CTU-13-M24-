@@ -23,13 +23,6 @@ The dataset represents real botnet traffic mixed with normal traffic and backgro
 
 Reference:  Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro Zunino. "An empirical comparison of botnet detection methods," *Computers and Security Journal, Elsevier*. 2014. Vol 45, pp 100-123.
 
-Key data features include:
-- Temporal information (StartTime, Duration)
-- Network protocol information
-- Source and destination addresses
-- Traffic flow statistics (packets, bytes)
-- Connection states
-
 ## Scope
 This analysis focuses on the **CTU-13 dataset’s Scenario 11** to illustrate how machine learning can detect botnet-related network flows among predominantly background traffic. While Scenario 11 is featured, many of these techniques also generalize across additional CTU-13 scenarios.
 
@@ -70,22 +63,11 @@ In my initial analysis, I discovered the following.
 #### Missing Values
 |            |     0 |
 |:-----------|------:|
-| StartTime  |     0 |
-| Dur        |     0 |
-| Proto      |     0 |
-| SrcAddr    |     0 |
 | Sport      |   463 |
-| Dir        |     0 |
-| DstAddr    |     0 |
 | Dport      |  7900 |
 | State      |    91 |
 | sTos       |   980 |
 | dTos       | 16959 |
-| TotPkts    |     0 |
-| TotBytes   |     0 |
-| SrcBytes   |     0 |
-| Label      |     0 |
-| LabelGroup |     0 |
 
 Analysis:
 - Sport (source port) occasionally not recorded → 463 missing.  
