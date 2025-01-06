@@ -48,15 +48,6 @@ At the start of the project, I loaded the necessary Python libraries to load and
 
 In this section, I **loaded** the raw network traffic data (107,251 records) and **explored** its structure. Specifically, I:
 
-**Types of Network Traffic**  
-#### Botnet Traffic & Targets**  
-   ![Botnet Traffic & Targets(./plots/S2_botnet_src_dist_plot.png)  
-   **Analysis:**  
-   - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
-   - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
-
-
-
 #### Missing Values per Column
 |            |     0 |
 |:-----------|------:|
@@ -84,7 +75,7 @@ In this section, I **loaded** the raw network traffic data (107,251 records) and
 - **dTos** is missing in 16,959 flows (often unrecorded or irrelevant).  
 
 ---
-8. **Botnet Source → Target Destination Graph**  
+**Botnet Source → Target Destinations**  
    ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
    **Analysis:**  
    - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
