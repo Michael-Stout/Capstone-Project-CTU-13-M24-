@@ -168,7 +168,58 @@ Below are the primary tables and plots illustrating this data exploration:
 
 ### Feature Engineering**  
 **Section 3: Data Cleaning & Feature Engineering***
-     - Removes or consolidates certain columns, creates derived features (e.g., BytesPerSecond, PktsPerSecond, IP entropy), applies categorical encoding.  
+
+In this section, I removed or consolidated certain features to create derived features (e.g., BytesPerSecond, PktsPerSecond, IP entropy) and applied categorical encoding.  
+
+
+1. **Distribution of DurCategory**  
+   ![Distribution of DurCategory (Log-Scaled Counts)](./plots/S3_durcategory_distribution.png)  
+   **Analysis:**  
+   - The vast majority of flows are **very_short**.  
+   - Few flows are labeled `short`, `medium`, or `long`.
+
+| Category | Count |
+|---|---|
+| very_short | 10106 |
+| long | 755 |
+| medium | 13 |
+| short | 8 |
+
+2. **Box Plot of BytePktRatio**  
+   ![Box Plot of BytePktRatio (Log/Symlog)](./plots/S3_bytepktratio_boxplot.png)  
+   **Analysis:**  
+   - BytePktRatio exhibits a wide range.  
+   - High ratios mean large payloads per packet; extremely low ratios reflect frequent small packets.
+
+
+
+3. **Distribution of BytesPerSecond**  
+   ![Distribution of BytesPerSecond (Log/Symlog)](./plots/S3_bytes_per_second_dist.png)  
+   **Analysis:**  
+   - Similar pattern: many flows near zero, with outliers showing high bandwidth usage.  
+   - Key for spotting large data exfiltration or DDoS-like behavior.
+
+
+4. **Distribution of PktsPerSecond**  
+   ![Distribution of PktsPerSecond (Log/Symlog)](./plots/S3_pkts_per_second_dist.png)  
+   **Analysis:**  
+   - Most flows have very low PktsPerSecond, but a few outliers have extremely high rates.  
+   - Such outliers often correspond to short, intense bursts of traffic.
+
+
+5. **Distribution of SrcAddrEntropy**  
+   ![Distribution of SrcAddrEntropy (Log/Symlog)](./plots/S3_src_addr_entropy_dist.png)  
+   **Analysis:**  
+   - Two major peaks indicate groups of flows with differing variability in source IP addresses.  
+   - Botnet sources often show lower entropy if they come from fewer infected hosts.
+
+
+6. **Distribution of DstAddrEntropy**  
+   ![Distribution of DstAddrEntropy (Log/Symlog)](./plots/S3_dst_addr_entropy_dist.png)  
+   **Analysis:**  
+   - Most flows cluster around a high-entropy region, indicating many distinct destination addresses.  
+   - A small tail suggests some flows target the same destination repeatedly.
+
 
 ### Model Development
 **Section 4: Visualizations**  
@@ -189,42 +240,6 @@ Below are the primary tables and plots illustrating this data exploration:
 #### Additional Feature Distributions
 
 During the **enhanced feature engineering** stage, we created or transformed features that help highlight differences among botnet vs. normal vs. background:
-
-1. **Distribution of DstAddrEntropy**  
-   ![Distribution of DstAddrEntropy (Log/Symlog)](./plots/S3_dst_addr_entropy_dist.png)  
-   **Analysis:**  
-   - Most flows cluster around a high-entropy region, indicating many distinct destination addresses.  
-   - A small tail suggests some flows target the same destination repeatedly.
-
-2. **Distribution of SrcAddrEntropy**  
-   ![Distribution of SrcAddrEntropy (Log/Symlog)](./plots/S3_src_addr_entropy_dist.png)  
-   **Analysis:**  
-   - Two major peaks indicate groups of flows with differing variability in source IP addresses.  
-   - Botnet sources often show lower entropy if they come from fewer infected hosts.
-
-3. **Distribution of PktsPerSecond**  
-   ![Distribution of PktsPerSecond (Log/Symlog)](./plots/S3_pkts_per_second_dist.png)  
-   **Analysis:**  
-   - Most flows have very low PktsPerSecond, but a few outliers have extremely high rates.  
-   - Such outliers often correspond to short, intense bursts of traffic.
-
-4. **Distribution of BytesPerSecond**  
-   ![Distribution of BytesPerSecond (Log/Symlog)](./plots/S3_bytes_per_second_dist.png)  
-   **Analysis:**  
-   - Similar pattern: many flows near zero, with outliers showing high bandwidth usage.  
-   - Key for spotting large data exfiltration or DDoS-like behavior.
-
-5. **Box Plot of BytePktRatio**  
-   ![Box Plot of BytePktRatio (Log/Symlog)](./plots/S3_bytepktratio_boxplot.png)  
-   **Analysis:**  
-   - BytePktRatio exhibits a wide range.  
-   - High ratios mean large payloads per packet; extremely low ratios reflect frequent small packets.
-
-6. **Distribution of DurCategory**  
-   ![Distribution of DurCategory (Log-Scaled Counts)](./plots/S3_durcategory_distribution.png)  
-   **Analysis:**  
-   - The vast majority of flows are **very_short**.  
-   - Few flows are labeled `short`, `medium`, or `long`.
 
 ---
 
