@@ -62,6 +62,7 @@ In my initial analysis, I discovered the following.
 
 
 #### Missing Values
+|            |       |
 |:-----------|------:|
 | Sport      |   463 |
 | Dport      |  7900 |
