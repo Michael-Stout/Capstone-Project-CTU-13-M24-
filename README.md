@@ -185,12 +185,23 @@ In this section, I removed or consolidated certain features to create derived fe
 | medium | 13 |
 | short | 8 |
 
+
 2. **Box Plot of BytePktRatio**  
    ![Box Plot of BytePktRatio (Log/Symlog)](./plots/S3_bytepktratio_boxplot.png)  
    **Analysis:**  
    - BytePktRatio exhibits a wide range.  
    - High ratios mean large payloads per packet; extremely low ratios reflect frequent small packets.
 
+| Metric | Value |
+|---|---|
+| count | 10882.0 |
+| mean | 822.1099264102124 |
+| std | 421.45060727454836 |
+| min | 60.0 |
+| 25% | 292.0 |
+| 50% | 1066.0 |
+| 75% | 1066.0 |
+| max | 1066.0 |
 
 
 3. **Distribution of BytesPerSecond**  
@@ -199,12 +210,34 @@ In this section, I removed or consolidated certain features to create derived fe
    - Similar pattern: many flows near zero, with outliers showing high bandwidth usage.  
    - Key for spotting large data exfiltration or DDoS-like behavior.
 
+| Metric | Value |
+|---|---|
+| count | 10882.0 |
+| mean | 65707.63308488764 |
+| std | 195364.19446829928 |
+| min | 0.0 |
+| 25% | 0.0 |
+| 50% | 0.0 |
+| 75% | 243.2164971812862 |
+| max | 1748538.0116959063 |
+
 
 4. **Distribution of PktsPerSecond**  
    ![Distribution of PktsPerSecond (Log/Symlog)](./plots/S3_pkts_per_second_dist.png)  
    **Analysis:**  
    - Most flows have very low PktsPerSecond, but a few outliers have extremely high rates.  
    - Such outliers often correspond to short, intense bursts of traffic.
+
+| Metric | Value |
+|---|---|
+| count | 10882.0 |
+| mean | 601.4648290374602 |
+| std | 1396.1123327844919 |
+| min | 0.0 |
+| 25% | 0.0 |
+| 50% | 0.0 |
+| 75% | 0.23277560736508965 |
+| max | 12987.012987012988 |
 
 
 5. **Distribution of SrcAddrEntropy**  
@@ -213,12 +246,34 @@ In this section, I removed or consolidated certain features to create derived fe
    - Two major peaks indicate groups of flows with differing variability in source IP addresses.  
    - Botnet sources often show lower entropy if they come from fewer infected hosts.
 
+| Metric | Value |
+|---|---|
+| count | 10882.0 |
+| mean | 2.898843920681802 |
+| std | 0.10173272608708873 |
+| min | 2.625814583693911 |
+| 25% | 2.8150724101159437 |
+| 50% | 2.8150724101159437 |
+| 75% | 3.0269868333592873 |
+| max | 3.027169118440619 |
+
 
 6. **Distribution of DstAddrEntropy**  
    ![Distribution of DstAddrEntropy (Log/Symlog)](./plots/S3_dst_addr_entropy_dist.png)  
    **Analysis:**  
    - Most flows cluster around a high-entropy region, indicating many distinct destination addresses.  
    - A small tail suggests some flows target the same destination repeatedly.
+
+| Metric | Value |
+|---|---|
+| count | 10882.0 |
+| mean | 2.8619192823547737 |
+| std | 0.04248657782943195 |
+| min | 2.1180782093497093 |
+| 25% | 2.855388542207534 |
+| 50% | 2.855388542207534 |
+| 75% | 2.855388542207534 |
+| max | 3.039148671903071 |
 
 
 ### Model Development
