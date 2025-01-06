@@ -60,8 +60,8 @@ In my initial analysis, I discovered the following.
 | Normal    | Normal Duration (seconds) [min, mean, max]                | [0.00, 7.88, 969.98] |
 
 
+
 #### Missing Values
-|            |     0 |
 |:-----------|------:|
 | Sport      |   463 |
 | Dport      |  7900 |
@@ -69,11 +69,14 @@ In my initial analysis, I discovered the following.
 | sTos       |   980 |
 | dTos       | 16959 |
 
+
+
 Analysis:
 - Sport (source port) occasionally not recorded → 463 missing.  
 - Dport (destination port) has 7,900 missing entries.  
 - State is missing in 91 flows.  
 - dTos is missing in 16,959 flows (often unrecorded or irrelevant).  
+
 
 
 #### Traffic Types
@@ -86,6 +89,7 @@ Analysis:
    - Significant class imbalance with background dominating.
 
 
+
 #### Traffic Characteristics
 **Botnet Source → Target Destination Graph**  
    ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
@@ -93,6 +97,7 @@ Analysis:
    Analysis:  
    - Shows 3 main Botnet source IPs connecting to multiple target IPs.  
    - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
+
 
 
 **Time-Based Packets Chart**  
@@ -104,6 +109,7 @@ Analysis:
    - Normal (green) remains modest in total packets per minute.
 
 
+
 **Time-Based Average Duration Chart**  
    ![Time-based Average Duration Chart (Scaled, All Traffic)](./plots/S2_time_based_avg_dur_all_scaled.png)  
    
@@ -111,6 +117,7 @@ Analysis:
    - Botnet flows (red) often remain short but can spike.  
    - Background (blue) typically has moderate-to-high durations.  
    - Normal (green) fluctuates but has fewer flows overall.
+
 
 
 ### Feature Engineering* 
