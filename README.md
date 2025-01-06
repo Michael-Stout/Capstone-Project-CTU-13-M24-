@@ -38,8 +38,6 @@ This analysis focuses on the **CTU-13 dataset’s Scenario 11** to illustrate ho
 
 ---
 
-
-
 ## Methodology
 
 ### Data Analysis
@@ -49,7 +47,7 @@ At the start of the project, I loaded the necessary Python libraries to load and
 
 **Section 2: Data Loading & Exploration**
 
-In this section, I **loaded** the raw network traffic data (107,251 records) and **explore** its structure. Specifically, I:
+In this section, I **loaded** the raw network traffic data (107,251 records) and **explored** its structure. Specifically, I:
 
 - **Handled missing values** for ports, states, and traffic characteristics.
 - **Grouped traffic types** into **Background**, **Botnet**, and **Normal** categories.
@@ -107,7 +105,7 @@ Below are the primary tables and plots illustrating this data exploration:
 - Botnet traffic is relatively **burst-like** (short durations) compared to Normal but with higher average byte counts per packet.  
 - Relatively few unique Botnet source IPs (3) vs. many background IPs.
 
-#### Key Exploration Plots
+#### Exploration Plots
 
 1. **Distribution of Target Variable**  
    ![Distribution of Target Variable](./plots/S2_target_distribution_combined.png)  
@@ -117,11 +115,13 @@ Below are the primary tables and plots illustrating this data exploration:
    - **Normal (green):** 2,718 records (~2.5%)  
    - Significant class imbalance with background dominating.
 
+
 2. **Top 20 Source IP Chart (All Traffic)**  
    ![Top 20 Source IP Chart, Scaled (All Traffic)](./plots/S2_top_20_src_ips_all_scaled.png)  
    **Analysis:**  
    - Background (blue) has the greatest variety of source IP addresses.  
    - Botnet (red) stands out in specific IPs, confirming its narrow distribution.
+
 
 3. **Top 20 Source IP Chart (Normal + Botnet Traffic)**  
    ![Top 20 Source IP Chart, Scaled (Normal + Botnet)](./plots/S2_top_20_src_ips_botnet_normal_scaled.png)  
@@ -129,17 +129,20 @@ Below are the primary tables and plots illustrating this data exploration:
    - Reveals which source IPs are predominantly botnet vs. normal.  
    - Botnet (red) is again more concentrated than normal (green).
 
+
 4. **Top 20 Destination IP Chart (All Traffic)**  
    ![Top 20 Destination IP Chart, Scaled (All Traffic)](./plots/S2_top_20_dst_ips_all_scaled.png)  
    **Analysis:**  
    - Background flows (blue) span many destinations.  
-   - Botnet (red) is relatively small but visible in certain bars.
+   The botnet (red) is relatively small but visible in certain bars.
+
 
 5. **Top 20 Destination IP Chart (Normal + Botnet Traffic)**  
    ![Top 20 Destination IP Chart, Scaled (Normal + Botnet)](./plots/S2_top_20_dst_ips_botnet_normal_scaled.png)  
    **Analysis:**  
    - Shows which IPs Normal vs. Botnet traffic target the most.  
    - Botnet flows (red) concentrate on fewer IP addresses.
+
 
 6. **Time-Based Packets Chart**  
    ![Time-based Packets Chart (Scaled, All Traffic)](./plots/S2_time_based_totpkts_all_scaled.png)  
@@ -148,6 +151,7 @@ Below are the primary tables and plots illustrating this data exploration:
    - Botnet (red) shows sharp bursts.  
    - Normal (green) remains modest in total packets per minute.
 
+
 7. **Time-Based Average Duration Chart**  
    ![Time-based Average Duration Chart (Scaled, All Traffic)](./plots/S2_time_based_avg_dur_all_scaled.png)  
    **Analysis:**  
@@ -155,29 +159,26 @@ Below are the primary tables and plots illustrating this data exploration:
    - Background (blue) typically has moderate-to-high durations.  
    - Normal (green) fluctuates but has fewer flows overall.
 
+
 8. **Botnet Source → Target Destination Graph**  
    ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
    **Analysis:**  
    - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
    - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
 
-2. **Feature Engineering**  
-   - Section 3: Data Cleaning & Feature Engineering  
+### Feature Engineering**  
+**Section 3: Data Cleaning & Feature Engineering***
      - Removes or consolidates certain columns, creates derived features (e.g., BytesPerSecond, PktsPerSecond, IP entropy), applies categorical encoding.  
 
-3. **Model Development**  
-   - Section 4: Visualizations  
+### Model Development
+**Section 4: Visualizations**  
      - Showcases how features differ for Normal vs. Botnet flows (e.g., violin plots, box plots, correlation heatmap).  
-   - Section 5: Train-Test Split & Multi-Model Pipeline  
+**Section 5:** Train-Test Split & Multi-Model Pipeline  
      - Prepares data splits, builds multiple classifiers with GridSearchCV, and logs performance metrics.  
-   - Section 6: Model Evaluations  
+**Section 6:** Model Evaluations  
      - Compares model metrics, outputs a scaled comparison chart (line or bar plots), and logs a summary table.  
-   - Section 7: Evaluate KNN on Multiple Datasets  
+**Section 7:** Evaluate KNN on Multiple Datasets  
      - Demonstrates how a chosen model (KNN) generalizes by applying it to multiple external CTU-13 dataset files and logs final performance metrics for each dataset.
-
-### Section 1 Import Libraries, Implement Logging & Set Global Variables
-
-### Section 2: Load and Explore Data
 
 ---
 
