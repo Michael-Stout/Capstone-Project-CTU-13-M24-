@@ -84,7 +84,7 @@ Below are the primary tables and plots illustrating this data exploration:
 - **State** is missing in 91 flows.  
 - **dTos** is missing in 16,959 flows (often unrecorded or irrelevant).  
 
-
+---
 **Botnet Source → Target Destination Graph**  
    ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
    **Analysis:**  
@@ -119,35 +119,6 @@ Below are the primary tables and plots illustrating this data exploration:
    - **Botnet (red):** 8,164 records (~7.6%)  
    - **Normal (green):** 2,718 records (~2.5%)  
    - Significant class imbalance with background dominating.
-
-
-2. **Top 20 Source IP Chart (All Traffic)**  
-   ![Top 20 Source IP Chart, Scaled (All Traffic)](./plots/S2_top_20_src_ips_all_scaled.png)  
-   **Analysis:**  
-   - Background (blue) has the greatest variety of source IP addresses.  
-   - Botnet (red) stands out in specific IPs, confirming its narrow distribution.
-
-
-3. **Top 20 Source IP Chart (Normal + Botnet Traffic)**  
-   ![Top 20 Source IP Chart, Scaled (Normal + Botnet)](./plots/S2_top_20_src_ips_botnet_normal_scaled.png)  
-   **Analysis:**  
-   - Reveals which source IPs are predominantly botnet vs. normal.  
-   - Botnet (red) is again more concentrated than normal (green).
-
-
-4. **Top 20 Destination IP Chart (All Traffic)**  
-   ![Top 20 Destination IP Chart, Scaled (All Traffic)](./plots/S2_top_20_dst_ips_all_scaled.png)  
-   **Analysis:**  
-   - Background flows (blue) span many destinations.  
-   The botnet (red) is relatively small but visible in certain bars.
-
-
-5. **Top 20 Destination IP Chart (Normal + Botnet Traffic)**  
-   ![Top 20 Destination IP Chart, Scaled (Normal + Botnet)](./plots/S2_top_20_dst_ips_botnet_normal_scaled.png)  
-   **Analysis:**  
-   - Shows which IPs Normal vs. Botnet traffic target the most.  
-   - Botnet flows (red) concentrate on fewer IP addresses.
-
 
 6. **Time-Based Packets Chart**  
    ![Time-based Packets Chart (Scaled, All Traffic)](./plots/S2_time_based_totpkts_all_scaled.png)  
