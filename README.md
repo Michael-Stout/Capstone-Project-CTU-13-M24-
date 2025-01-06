@@ -452,32 +452,333 @@ I tested various models in this section, recorded their metrics, output a scaled
 
 **Naive Bayes**
 
+1. **Confusion Matrix: NaiveBayes**  
+   ![Confusion Matrix: NaiveBayes](./plots/S5_confusion_matrix_NaiveBayes.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, the classifier misclassifies only **3** of the botnet flows (false negatives) and **0** normal flows (false positives).  
+   - Overall accuracy remains exceptionally high, with near-perfect precision for normal class.
+
+2. **Calibration Curve: NaiveBayes**  
+   ![Calibration Curve: NaiveBayes](./plots/S5_calibration_NaiveBayes.png)  
+   **Analysis:**  
+   - The calibration line (blue squares) closely follows the diagonal, indicating the **Naive Bayes** probability outputs are well-aligned with true outcome frequencies.  
+   - In many ML scenarios, Naive Bayes probabilities can be skewed, but here they appear quite reliable.
+
+3. **ROC Curve: NaiveBayes**  
+   ![ROC Curve: NaiveBayes](./plots/S5_roc_NaiveBayes.png)  
+   **Analysis:**  
+   - The AUC (Area Under the Curve) is **1.00**, showing perfect separability on this test set.  
+   - Confirms that Naive Bayes, despite its simplifying assumptions, effectively distinguishes botnet from normal traffic in this scenario.
+
+4. **Gains Chart: NaiveBayes**  
+   ![Gains Chart: NaiveBayes](./plots/S5_gains_NaiveBayes.png)  
+   **Analysis:**  
+   - Highlights that by focusing on the top portion of flows ranked by predicted probability, almost all botnet flows are identified with minimal total traffic to review.  
+   - Very similar to the near-vertical rise seen with other high-performing models.
+
+5. **Precision-Recall Curve: NaiveBayes**  
+   ![Precision-Recall Curve: NaiveBayes](./plots/S5_pr_curve_NaiveBayes.png)  
+   **Analysis:**  
+   - Precision remains ~1.0 for a broad range of recall values, only dropping slightly at the highest recall levels (near 100%).  
+   - Implies extremely few false positives or false negatives over most decision thresholds.
+
+---
+
+### Strengths of Naive Bayes
+
+- **Speed & Simplicity**: Very fast to train and straightforward to implement.  
+- **Well-Calibrated Probabilities**: In this dataset, the predicted probabilities align well with observed frequencies (see calibration curve).
+
+### Weaknesses of Naive Bayes
+
+- **Strong Independence Assumption**: Assumes features are conditionally independent, which may not hold in all real-world datasets.  
+- **No Direct Feature Importance**: The standard approach does not provide a built-in feature_importances_ or coefficient-based ranking (unlike Decision Tree or Logistic Regression).  
 
 
-**K-Nearest Neighbors (KNN)**
+### K-Nearest Neighbors (KNN)
 
+Below are several plots highlighting the performance of the **KNN** classifier:
+
+1. **Confusion Matrix: KNN**  
+   ![Confusion Matrix: KNN](./plots/S5_confusion_matrix_KNN.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, KNN misclassifies only **2** botnet flows (false negatives) and **0** normal flows.  
+   - Near-perfect classification, with an extremely low error rate.
+
+2. **ROC Curve: KNN**  
+   ![ROC Curve: KNN](./plots/S5_roc_KNN.png)  
+   **Analysis:**  
+   - The AUC is **1.00**, indicating complete separability of botnet vs. normal in this test set.  
+   - Perfect true-positive rate achieved at ~0% false positives.
+
+3. **Calibration Curve: KNN**  
+   ![Calibration Curve: KNN](./plots/S5_calibration_KNN.png)  
+   **Analysis:**  
+   - KNN probabilities appear mostly at the extremes (0 or 1), shown by the curve hugging the top axis.  
+   - While the classification is very accurate, the predicted probabilities are less smoothly calibrated.
+
+4. **Gains Chart: KNN**  
+   ![Gains Chart: KNN](./plots/S5_gains_KNN.png)  
+   **Analysis:**  
+   - Identifies nearly all botnet flows after reviewing the top ~20% of predicted probabilities.  
+   - Exhibits the same near-vertical rise as other best-performing models (e.g., RandomForest, DecisionTree).
+
+5. **Precision-Recall Curve: KNN**  
+   ![Precision-Recall Curve: KNN](./plots/S5_pr_curve_KNN.png)  
+   **Analysis:**  
+   - Precision and Recall both remain at or near **1.0** across almost the entire curve.  
+   - Very few misclassifications in either direction.
+
+---
+
+### Strengths of KNN
+
+- **Non-Parametric**: No explicit training phase; classification is based on the proximity of data points in feature space.  
+- **High Accuracy**: Excels when classes are well-separated by distance metrics, as demonstrated by near-perfect performance here.  
+- **Easy to Understand**: The concept of “closeness” or “neighbor votes” is quite intuitive.
+
+### Weaknesses of KNN
+
+- **Computational Cost**: Prediction time can be high for large datasets, since it must compute distances to all or many training points.  
+- **Feature Scaling Sensitivity**: Distances can be skewed if features aren’t normalized or if there’s high dimensionality.  
+- **No Direct Feature Importance**: KNN provides no straightforward measure of which features drive classification decisions; all features contribute equally unless manually weighted.
 
 
 **Support Vector Machine (SVM)**
 
+1. **Top 10 Features (Absolute Coefficients): SVM**  
+   ![Top 10 Features (Absolute Coefs): SVM](./plots/S5_top10_features_SVM.png)  
+   **Analysis:**  
+   - **SrcBytes** and **TotPkts** are the most influential in the linear SVM’s decision boundary, based on absolute coefficient values.  
+   - **BytePktRatio**, **TotBytes**, and **SrcAddrEntropy** also appear prominently, indicating that both volume-based and entropy-based features help the SVM separate botnet from normal traffic.
+
+2. **Confusion Matrix: SVM**  
+   ![Confusion Matrix: SVM](./plots/S5_confusion_matrix_SVM.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, only **2** botnet flows are misclassified (false negatives), with **0** normal misclassifications.  
+   - Delivers near-perfect performance, aligning with the other top models.
+
+3. **Calibration Curve: SVM**  
+   ![Calibration Curve: SVM](./plots/S5_calibration_SVM.png)  
+   **Analysis:**  
+   - The classifier probabilities are fairly well aligned with the ideal diagonal, though not perfectly.  
+   - SVMs often produce strong decision margins but can need additional calibration to refine probability estimates.
+
+4. **Gains Chart: SVM**  
+   ![Gains Chart: SVM](./plots/S5_gains_SVM.png)  
+   **Analysis:**  
+   - By focusing on the top fraction of flows (ranked by predicted probability of being botnet), nearly all botnet flows are captured quickly.  
+   - The gains approach 100% after reviewing ~20% of flows, similar to other high-accuracy models.
+
+5. **ROC Curve: SVM**  
+   ![ROC Curve: SVM](./plots/S5_roc_SVM.png)  
+   **Analysis:**  
+   - The AUC is **1.00**, indicating a complete separation between classes in this test set.  
+   - SVM’s linear kernel in this scenario identifies botnet vs. normal with minimal error.
+
+6. **Precision-Recall Curve: SVM**  
+   ![Precision-Recall Curve: SVM](./plots/S5_pr_curve_SVM.png)  
+   **Analysis:**  
+   - Precision remains ~1.0 from low recall up to nearly 100%, illustrating extremely few false positives.  
+   - The curve only drops right at the edge, aligning with near-perfect detection.
+
+---
+
+### Strengths of SVM
+
+- **Effective in High-Dimensional Spaces**: SVMs handle many features gracefully and can leverage different kernel functions for complex boundaries.  
+- **Robust Margins**: Maximizes the margin between classes, leading to strong generalization when data is well-separated.
+
+### Weaknesses of SVM
+
+- **Tuning Complexity**: Choice of kernel, `C` value, and other parameters can require extensive grid search.  
+- **Less Intuitive Probability Outputs**: Default SVMs don’t produce probabilistic outputs; calibration (Platt scaling or similar) is often necessary.  
+- **Computation Time**: Can be slower for very large datasets or complex kernels.
 
 
 **Logistic Regression**
 
+Here are the plots showing the performance of the **Logistic Regression** classifier:
+
+1. **Top 10 Features (Absolute Coefficients): LogisticRegression**  
+   ![Top 10 Features (Absolute Coefs): LogisticRegression](./plots/S5_top10_features_LogisticRegression.png)  
+   **Analysis:**  
+   - **SrcBytes**, **TotBytes**, and **TotPkts** exhibit the largest absolute coefficient values, indicating they strongly influence the log-odds of a flow being botnet vs. normal.  
+   - **BytePktRatio** also shows a substantial coefficient, highlighting the ratio of bytes to packets as a key distinguishing factor.  
+   - Other features (e.g., `State`, `Proto`, `SrcAddrEntropy`) provide additional predictive power.
+
+2. **Confusion Matrix: LogisticRegression**  
+   ![Confusion Matrix: LogisticRegression](./plots/S5_confusion_matrix_LogisticRegression.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, the model misclassifies **1** normal flow (false positive) and **2** botnet flows (false negatives).  
+   - Overall performance is still exceptionally high, with only a handful of errors.
+
+3. **ROC Curve: LogisticRegression**  
+   ![ROC Curve: LogisticRegression](./plots/S5_roc_LogisticRegression.png)  
+   **Analysis:**  
+   - The AUC is **1.00**, indicating complete separation of botnet vs. normal in this test set.  
+   - Logistic Regression identifies the majority of flows correctly with very few misclassifications.
+
+4. **Calibration Curve: LogisticRegression**  
+   ![Calibration Curve: LogisticRegression](./plots/S5_calibration_LogisticRegression.png)  
+   **Analysis:**  
+   - Shows that the predicted probabilities are somewhat under-confident for low-probability flows (under 0.2) and over-confident for higher probabilities.  
+   - Overall alignment is still decent, but there is room for more precise calibration if needed.
+
+5. **Gains Chart: LogisticRegression**  
+   ![Gains Chart: LogisticRegression](./plots/S5_gains_LogisticRegression.png)  
+   **Analysis:**  
+   - Similar to other high-performing models, the cumulative gains approach 1.0 quickly, indicating a small fraction of top flows contain the majority of botnet traffic.  
+   - Confirms that scoring flows by LogisticRegression probability is effective for prioritizing suspicious connections.
+
+6. **Precision-Recall Curve: LogisticRegression**  
+   ![Precision-Recall Curve: LogisticRegression](./plots/S5_pr_curve_LogisticRegression.png)  
+   **Analysis:**  
+   - Maintains near-perfect precision until recall nears 100%, signifying minimal false positives.  
+   - Very high recall with few missed botnet flows.
+
+---
+
+### Strengths of Logistic Regression
+
+- **Interpretability**: Provides direct insight into how each feature influences botnet vs. normal classification via positive/negative coefficients.  
+- **Efficiency**: Generally fast to train, even with large datasets.  
+- **Probability Outputs**: Offers straightforward probability scores (which can be further calibrated if needed).
+
+### Weaknesses of Logistic Regression
+
+- **Linear Decision Boundary**: May underfit if relationships between features and target are highly non-linear (though interactions or polynomial features can mitigate this).  
+- **Feature Engineering**: Often requires carefully engineered or transformed features to capture complex patterns.
 
 
 **Gradient Boosting**
 
+1. **Top 10 Features: GradientBoosting**  
+   ![Top 10 Features: GradientBoosting](./plots/S5_top10_features_GradientBoosting.png)  
+   **Analysis:**  
+   - **BytePktRatio** dominates the feature importance, indicating that the ratio of bytes to packets is the primary factor for splitting in this boosted ensemble.  
+   - Other features (SrcAddrEntropy, SrcBytes, DstAddrEntropy) appear but with minimal relative impact, reflecting how the model focuses on a few strongly predictive splits.
+
+2. **Confusion Matrix: GradientBoosting**  
+   ![Confusion Matrix: GradientBoosting](./plots/S5_confusion_matrix_GradientBoosting.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, only **3** flows are misclassified (2 normal flows flagged as botnet, 1 botnet flow flagged as normal).  
+   - Overall performance is still near-perfect, consistent with the other high-performing models.
+
+3. **ROC Curve: GradientBoosting**  
+   ![ROC Curve: GradientBoosting](./plots/S5_roc_GradientBoosting.png)  
+   **Analysis:**  
+   - The AUC is **1.00**, confirming the model’s ability to separate botnet vs. normal traffic with almost no overlap.  
+   - Indicates extremely high true-positive and extremely low false-positive rates across thresholds.
+
+4. **Calibration Curve: GradientBoosting**  
+   ![Calibration Curve: GradientBoosting](./plots/S5_calibration_GradientBoosting.png)  
+   **Analysis:**  
+   - The model’s probabilities tend to cluster around the extremes (near 0 or near 1), shown by the zig-zag line.  
+   - While classification is very accurate, the probability estimates are less smoothly calibrated (similar to RandomForest).
+
+5. **Gains Chart: GradientBoosting**  
+   ![Gains Chart: GradientBoosting](./plots/S5_gains_GradientBoosting.png)  
+   **Analysis:**  
+   - Within the top ~20% of flows sorted by predicted botnet probability, nearly all botnet instances are identified.  
+   - Demonstrates strong utility for prioritizing suspicious flows.
+
+6. **Precision-Recall Curve: GradientBoosting**  
+   ![Precision-Recall Curve: GradientBoosting](./plots/S5_pr_curve_GradientBoosting.png)  
+   **Analysis:**  
+   - Precision remains ~1.0 until recall pushes near 100%.  
+   - Very few false positives or false negatives, consistent with high recall and high precision.
+
+---
+
+### Strengths of Gradient Boosting
+
+- **High Predictive Power**: Often outperforms many simpler algorithms by sequentially correcting errors of weaker learners.  
+- **Versatile**: Can handle many data types and distribution shapes; hyperparameter tuning allows substantial control.  
+- **Handles Non-Linearities**: Gradient Boosting can capture complex decision boundaries when building many shallow trees.
+
+### Weaknesses of Gradient Boosting
+
+- **Overfitting Risk**: If not tuned carefully (e.g., too many boosting iterations, large tree depth), it can overfit the training data.  
+- **Slower Training**: Typically more computationally expensive than single-tree methods due to iterative nature.  
+- **Interpretability**: Less intuitive than a single decision tree; feature importance is helpful, but the ensemble structure is harder to visualize.
 
 
+1. **Top 10 Features: GradientBoosting**  
+   ![Top 10 Features: GradientBoosting](./plots/S5_top10_features_GradientBoosting.png)  
+   **Analysis:**  
+   - **BytePktRatio** dominates the feature importance, indicating that the ratio of bytes to packets is the primary factor for splitting in this boosted ensemble.  
+   - Other features (SrcAddrEntropy, SrcBytes, DstAddrEntropy) appear but with minimal relative impact, reflecting how the model focuses on a few strongly predictive splits.
 
+2. **Confusion Matrix: GradientBoosting**  
+   ![Confusion Matrix: GradientBoosting](./plots/S5_confusion_matrix_GradientBoosting.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, only **3** flows are misclassified (2 normal flows flagged as botnet, 1 botnet flow flagged as normal).  
+   - Overall performance is still near-perfect, consistent with the other high-performing models.
+
+3. **ROC Curve: GradientBoosting**  
+   ![ROC Curve: GradientBoosting](./plots/S5_roc_GradientBoosting.png)  
+   **Analysis:**  
+   - The AUC is **1.00**, confirming the model’s ability to separate botnet vs. normal traffic with almost no overlap.  
+   - Indicates extremely high true-positive and extremely low false-positive rates across thresholds.
+
+4. **Calibration Curve: GradientBoosting**  
+   ![Calibration Curve: GradientBoosting](./plots/S5_calibration_GradientBoosting.png)  
+   **Analysis:**  
+   - The model’s probabilities tend to cluster around the extremes (near 0 or near 1), shown by the zig-zag line.  
+   - While classification is very accurate, the probability estimates are less smoothly calibrated (similar to RandomForest).
+
+5. **Gains Chart: GradientBoosting**  
+   ![Gains Chart: GradientBoosting](./plots/S5_gains_GradientBoosting.png)  
+   **Analysis:**  
+   - Within the top ~20% of flows sorted by predicted botnet probability, nearly all botnet instances are identified.  
+   - Demonstrates strong utility for prioritizing suspicious flows.
+
+6. **Precision-Recall Curve: GradientBoosting**  
+   ![Precision-Recall Curve: GradientBoosting](./plots/S5_pr_curve_GradientBoosting.png)  
+   **Analysis:**  
+   - Precision remains ~1.0 until recall pushes near 100%.  
+   - Very few false positives or false negatives, consistent with high recall and high precision.
+
+---
+
+### Strengths of Gradient Boosting
+
+- **High Predictive Power**: Often outperforms many simpler algorithms by sequentially correcting errors of weaker learners.  
+- **Versatile**: Can handle many data types and distribution shapes; hyperparameter tuning allows substantial control.  
+- **Handles Non-Linearities**: Gradient Boosting can capture complex decision boundaries when building many shallow trees.
+
+### Weaknesses of Gradient Boosting
+
+- **Overfitting Risk**: If not tuned carefully (e.g., too many boosting iterations, large tree depth), it can overfit the training data.  
+- **Slower Training**: Typically more computationally expensive than single-tree methods due to iterative nature.  
+- **Interpretability**: Less intuitive than a single decision tree; feature importance is helpful, but the ensemble structure is harder to visualize.
+
+### Comparing the Models
+
+| Model              | best_params                                                                                              |   train_time_sec |    cv_f1 |   test_accuracy |   test_precision |   test_recall |   test_f1 |   specificity |   test_roc_auc |   log_loss |      mAP | confusion_matrix   |
+|:-------------------|:---------------------------------------------------------------------------------------------------------|-----------------:|---------:|----------------:|-----------------:|--------------:|----------:|--------------:|---------------:|-----------:|---------:|:-------------------|
+| RandomForest       | {'clf__max_depth': 10, 'clf__min_samples_leaf': 1, 'clf__min_samples_split': 5, 'clf__n_estimators': 50} |        2.69593   | 0.999004 |        0.998622 |         0.998776 |      0.999388 |  0.999082 |      0.996324 |       0.999993 | 0.00244824 | 0.999998 | [[ 542    2]       |
+|                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   1 1632]]      |
+| DecisionTree       | {'clf__max_depth': 10, 'clf__min_samples_leaf': 1, 'clf__min_samples_split': 2}                          |        0.0937662 | 0.998699 |        0.999541 |         0.999388 |      1        |  0.999694 |      0.998162 |       0.999081 | 0.0165566  | 0.999388 | [[ 543    1]       |
+|                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   0 1633]]      |
+| NaiveBayes         | {'clf__var_smoothing': 1e-09}                                                                            |        0.0405741 | 0.998543 |        0.998622 |         1        |      0.998163 |  0.999081 |      1        |       0.998571 | 0.0496697  | 0.999609 | [[ 544    0]       |
+|                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   3 1630]]      |
+| KNN                | {'clf__n_neighbors': 5, 'clf__weights': 'distance'}                                                      |        0.222822  | 0.99885  |        0.999081 |         1        |      0.998775 |  0.999387 |      1        |       1        | 0.00155686 | 1        | [[ 544    0]       |
+|                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   2 1631]]      |
+| SVM                | {'clf__C': 10.0, 'clf__kernel': 'linear'}                                                                |        0.93003   | 0.999081 |        0.999081 |         1        |      0.998775 |  0.999387 |      1        |       0.99892  | 0.00974327 | 0.999722 | [[ 544    0]       |
+|                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   2 1631]]      |
+| LogisticRegression | {'clf__C': 10, 'clf__penalty': 'l1'}                                                                     |        0.720791  | 0.998544 |        0.998622 |         0.999387 |      0.998775 |  0.999081 |      0.998162 |       0.999929 | 0.00586066 | 0.999977 | [[ 543    1]       |
+|                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   2 1631]]      |
+| GradientBoosting   | {'clf__learning_rate': 0.1, 'clf__max_depth': 3, 'clf__n_estimators': 100}                               |        1.27693   | 0.999234 |        0.998622 |         0.998776 |      0.999388 |  0.999082 |      0.996324 |       0.999995 | 0.00298092 | 0.999999 | [[ 542    2]       |
+|                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   1 1632]]      |
 
 
 
 
 **Section 7:** Evaluate KNN on Multiple Datasets  
-     - Demonstrates how a chosen model (KNN) generalizes by applying it to multiple external CTU-13 dataset files and logs final performance metrics for each dataset.
 
+- 
 ---
 
 
