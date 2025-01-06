@@ -714,6 +714,29 @@ I tested various models in this section, recorded their metrics, output a scaled
 |                    |                                                                                                          |                  |          |                 |                  |               |           |               |                |            |          |  [   1 1632]]      |
 
 
+
+
+---
+
+## Section 7: 
+
+### Overview of Scaled Metric Plots
+Objectives
+1. Write a comprehensive report on the information in this log.
+2. Follow the README.md format below
+3. Link to the plots from the log to the sections of my code.
+4. The plot paths are [plot_name](./plots/plot_name].png
+5. Group each machine learning model as its own subsection with plots and give an explaination of the stregnths and weaknesses
+6. Exame the Section 7 data, and give a comprensive overview of the KNN performance.
+
+
+
+
+The dataset represents real botnet traffic mixed with normal traffic and background traffic. Scenario 11 specifically captured the behavior of Rbot, which was a family of malware known for its backdoor capabilities and use in creating botnets.
+
+Data Analysis
+
+
 ### Overview of Scaled Metric Plots
 In Section 6, we compare each model’s performance metrics on a shared (scaled) axis, allowing us to quickly identify strengths (high or near 1.0) and weaknesses (low or near 0). The following observations derive from these plots:
 
@@ -831,61 +854,8 @@ In Section 6, we compare each model’s performance metrics on a shared (scaled)
 
 Overall, the synergy between well-chosen features (especially BytePktRatio, Bytes/Packets stats, and entropies) and robust modeling leads to near-perfect detection of botnet vs. normal traffic.
 
-
-
-**Section 7:** Evaluate KNN on Multiple Datasets  
-     - Demonstrates how a chosen model (KNN) generalizes by applying it to multiple external CTU-13 dataset files and logs final performance metrics for each dataset.
-
----
-
-
-
----
-
-#### Additional Feature Distributions
-
-During the **enhanced feature engineering** stage, we created or transformed features that help highlight differences among botnet vs. normal vs. background:
-
----
-
-
-
----
-
-## Model Development (Summary of Later Sections)
-1. **Data Processing and Cleaning:**  
-   - Dealt with missing values in Sport, Dport, State, sTos, and dTos.  
-   - Merged or dropped irrelevant columns (if any).  
-   - Generated new columns (entropy features, BytePktRatio, etc.).
-
-2. **Feature Engineering:**  
-   - Created categorical features for the duration (`very_short`, `short`, `medium`, `long`).  
-   - Developed byte-packet ratio analysis.  
-   - Implemented traffic flow statistics.  
-   - Generated entropy-based metrics for source and destination addresses.
-
-3. **Model Development:**  
-   - Implemented multiple classification algorithms:
-     - Random Forest
-     - Decision Tree
-     - Naive Bayes
-     - K-Nearest Neighbors (KNN)
-     - Support Vector Machine (SVM)
-     - Logistic Regression
-     - Gradient Boosting
-   - Used GridSearchCV for hyperparameter optimization.
-   - Implemented cross-validation for model validation.
-
-4. **Analysis Techniques:**  
-   - Statistical analysis of traffic patterns  
-   - Time-series analysis of network flows  
-   - Advanced visualization techniques  
-   - Machine learning classification models
-
----
-
 ## Results
-The analysis yielded comprehensive insights into botnet detection capabilities:
+In applying KNN to the total CTU-13 dataset, my analysis yielded comprehensive insights into botnet detection capabilities:
 
 1. **Model Performance:**
    - KNN emerged as the top performer with:
@@ -958,9 +928,5 @@ The analysis yielded comprehensive insights into botnet detection capabilities:
    - Integrate additional network metrics
 
 ---
-
-## Outline of Project
-
-
 
 *Note: Plots and logs are available in the project directory.*
