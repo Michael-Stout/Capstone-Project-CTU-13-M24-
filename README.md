@@ -84,6 +84,12 @@ Below are the primary tables and plots illustrating this data exploration:
 - **State** is missing in 91 flows.  
 - **dTos** is missing in 16,959 flows (often unrecorded or irrelevant).  
 
+**Botnet Source → Target Destination Graph**  
+   ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
+   **Analysis:**  
+   - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
+   - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
+
 
 #### Traffic Distribution Table
 | Category  | Metric                                                    |                                          Value |
