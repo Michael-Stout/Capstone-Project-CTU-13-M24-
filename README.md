@@ -88,19 +88,19 @@ In my initial analysis, I discovered the following.
 | LabelGroup |     0 |
 
 Analysis:
-- **Sport** (source port) occasionally not recorded → 463 missing.  
-- **Dport** (destination port) has 7,900 missing entries.  
-- **State** is missing in 91 flows.  
-- **dTos** is missing in 16,959 flows (often unrecorded or irrelevant).  
+- Sport (source port) occasionally not recorded → 463 missing.  
+- Dport (destination port) has 7,900 missing entries.  
+- State is missing in 91 flows.  
+- dTos is missing in 16,959 flows (often unrecorded or irrelevant).  
 
 
 #### Traffic Types
    ![Distribution of Target Variable](./plots/S2_target_distribution_combined.png)  
    
    Analysis:  
-   - **Background (blue):** 96,369 records (~89.9%)  
-   - **Botnet (red):** 8,164 records (~7.6%)  
-   - **Normal (green):** 2,718 records (~2.5%)  
+   - Background (blue): 96,369 records (~89.9%)  
+   - Botnet (red): 8,164 records (~7.6%)  
+   - Normal (green): 2,718 records (~2.5%)  
    - Significant class imbalance with background dominating.
 
 
@@ -109,7 +109,7 @@ Analysis:
    ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
    
    Analysis:  
-   - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
+   - Shows 3 main Botnet source IPs connecting to multiple target IPs.  
    - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
 
 
@@ -131,7 +131,7 @@ Analysis:
    - Normal (green) fluctuates but has fewer flows overall.
 
 
-### Feature Engineering**  
+### Feature Engineering* 
 **Section 3: Data Cleaning & Feature Engineering***
 
 In this section, I removed or consolidated certain features to create derived features (e.g., BytesPerSecond, PktsPerSecond, IP entropy) and applied categorical encoding.  
