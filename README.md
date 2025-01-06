@@ -336,14 +336,145 @@ This section presents additional plots that focus on distinguishing **Botnet vs.
    - Reflects the bursty, short-lifetime nature of botnet flows.
 
 
-
-
-
-
 **Section 5:** Train-Test Split & Multi-Model Pipeline  
-     - Prepares data splits, builds multiple classifiers with GridSearchCV, and logs performance metrics.  
+
+In this section, I data split, build multiple classifiers with GridSearchCV, and log performance metrics.  
+
 **Section 6:** Model Evaluations  
-     - Compares model metrics, outputs a scaled comparison chart (line or bar plots), and logs a summary table.  
+
+I tested various models in this section, recorded their metrics, output a scaled comparison chart (line or bar plots), and logged a summary table.  
+
+### Random Forest
+
+1. **Top 10 Features: RandomForest**  
+   ![Top 10 Features: RandomForest](./plots/S5_top10_features_RandomForest.png)  
+   **Analysis:**  
+   - **SrcBytes** (source bytes) emerged as the most important feature, followed by **TotBytes**, **BytePktRatio**, and **BytesPerSecond**.  
+   - Packet-based stats (PktsPerSecond) also rank highly.  
+   - Reflects that the volume/ratio of traffic plays a dominant role in distinguishing botnet vs. normal.
+
+2. **Confusion Matrix: RandomForest**  
+   ![Confusion Matrix: RandomForest](./plots/S5_confusion_matrix_RandomForest.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, the model misclassifies only **3 total flows** (2 false positives, 1 false negative).  
+   - Achieves near-perfect performance on both classes.
+
+3. **ROC Curve: RandomForest**  
+   ![ROC Curve: RandomForest](./plots/S5_roc_RandomForest.png)  
+   **Analysis:**  
+   - The AUC (Area Under the Curve) is **1.00**, indicating perfect separation of positive (botnet) vs. negative (normal) classes in this test set.
+
+4. **Calibration Curve: RandomForest**  
+   ![Calibration Curve: RandomForest](./plots/S5_calibration_RandomForest.png)  
+   **Analysis:**  
+   - The curve deviates from the perfectly calibrated line, reflecting that while the model is extremely accurate, its predicted probabilities can be somewhat extreme (most flows are either near 0 or near 1 in predicted probability).
+
+5. **Gains Chart: RandomForest**  
+   ![Gains Chart: RandomForest](./plots/S5_gains_RandomForest.png)  
+   **Analysis:**  
+   - The cumulative gains approach 1.0 very quickly.  
+   - In practical terms, by scoring flows with RandomForest and reviewing the top ~20% of predicted probabilities, we capture nearly all botnet flows.
+
+6. **Precision-Recall Curve: RandomForest**  
+   ![Precision-Recall Curve: RandomForest](./plots/S5_pr_curve_RandomForest.png)  
+   **Analysis:**  
+   - Precision and Recall remain extremely high, near **1.0** across all thresholds.  
+   - Reinforces that false positives or false negatives are minimal.
+
+---
+
+#### Strengths of Random Forest
+- **High Predictive Accuracy**: Excellent at handling complex interactions among features, as shown by near-perfect metrics.  
+- **Feature Importance**: Provides interpretable measures of which features drive the decision process (e.g., `SrcBytes`, `TotBytes`).  
+- **Robustness**: Less prone to overfitting than a single decision tree, thanks to ensemble averaging.
+
+#### Weaknesses of Random Forest
+- **Model Complexity**: The trained model can be quite large, and predictions can be slower than simpler models (especially with large `n_estimators`).  
+- **Probability Calibration**: Tends to produce extreme probability estimates (0 or 1), as seen in the calibration plot.
+
+---
+
+#### Results Overview
+- **Random Forest**: Achieved near-perfect classification performance (AUC=1.0, F1>0.999, minimal misclassifications).  
+- Similar analyses were performed for Decision Tree, Naive Bayes, KNN, SVM, Logistic Regression, and Gradient Boosting—each exhibiting similarly high performance but with nuanced differences in speed, interpretability, and calibration.
+
+
+### Decision Tree**
+
+1. **Top 10 Features: DecisionTree**  
+   ![Top 10 Features: DecisionTree](./plots/S5_top10_features_DecisionTree.png)  
+   **Analysis:**  
+   - **BytePktRatio** overwhelmingly dominates feature importance, meaning most of the tree’s splits heavily rely on the ratio of total bytes to total packets.  
+   - Other features (like `SrcAddrEntropy`, `SrcBytes`, etc.) show only minimal influence under this model’s structure.
+
+2. **Confusion Matrix: DecisionTree**  
+   ![Confusion Matrix: DecisionTree](./plots/S5_confusion_matrix_DecisionTree.png)  
+   **Analysis:**  
+   - Out of 2,177 test samples, the model misclassifies only **1 total flow** (1 false positive, 0 false negatives).  
+   - Nearly perfect classification, reflecting the tree’s ability to separate normal (0) from botnet (1).
+
+3. **ROC Curve: DecisionTree**  
+   ![ROC Curve: DecisionTree](./plots/S5_roc_DecisionTree.png)  
+   **Analysis:**  
+   - The AUC is **1.00**, indicating a perfectly separable classification boundary on this test set.  
+   - Confirms that the Decision Tree, for this data, can almost entirely distinguish the two classes.
+
+4. **Gains Chart: DecisionTree**  
+   ![Gains Chart: DecisionTree](./plots/S5_gains_DecisionTree.png)  
+   **Analysis:**  
+   - By selecting the top fraction of flows with the highest predicted probability of being botnet, we quickly capture most of the actual botnet flows.  
+   - Nearly reaches 100% of botnet flows by reviewing only ~20-25% of total traffic.
+
+5. **Calibration Curve: DecisionTree**  
+   ![Calibration Curve: DecisionTree](./plots/S5_calibration_DecisionTree.png)  
+   **Analysis:**  
+   - The classifier’s predicted probabilities align perfectly on the diagonal line.  
+   - Indicates that the Decision Tree’s probability outputs (in this scenario) are remarkably well-calibrated.
+
+6. **Precision-Recall Curve: DecisionTree**  
+   ![Precision-Recall Curve: DecisionTree](./plots/S5_pr_curve_DecisionTree.png)  
+   **Analysis:**  
+   - Precision and Recall remain at or near **1.0** for essentially all thresholds.  
+   - Denotes minimal false positives and false negatives.
+
+---
+
+### Strengths of Decision Tree
+
+- **Interpretability**: A single tree can be easily visualized, providing direct insight into classification rules (e.g., BytePktRatio threshold splits).  
+- **Fast Training**: Tends to be computationally lighter than ensemble methods (like Random Forest).
+
+### Weaknesses of Decision Tree
+
+- **Overfitting Risk**: Without pruning or parameter tuning, trees can memorize training data and fail to generalize.  
+- **Single-Feature Dominance**: As seen here, a single feature (BytePktRatio) can dominate splits, potentially overlooking other nuanced patterns.
+
+
+**Naive Bayes**
+
+
+
+**K-Nearest Neighbors (KNN)**
+
+
+
+**Support Vector Machine (SVM)**
+
+
+
+**Logistic Regression**
+
+
+
+**Gradient Boosting**
+
+
+
+
+
+
+
+
 **Section 7:** Evaluate KNN on Multiple Datasets  
      - Demonstrates how a chosen model (KNN) generalizes by applying it to multiple external CTU-13 dataset files and logs final performance metrics for each dataset.
 
@@ -359,57 +490,7 @@ During the **enhanced feature engineering** stage, we created or transformed fea
 
 ---
 
-### Section 4: Visualizations
 
-In this section, we present additional plots that focus on distinguishing **Botnet vs. Normal** traffic. These visualizations allow us to see how critical features (BytesPerSecond, PktsPerSecond, SportRange, etc.) vary between the two classes.
-
-1. **Violin Plot of BytesPerSecond by Botnet Label**  
-   ![Violin Plot of BytesPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_violinplot_bytespersec_botnet.png)  
-   **Analysis:**  
-   - Normal traffic (green) covers a broad range of BytesPerSecond, from near-zero to well over 1e6.  
-   - Botnet traffic (red) remains close to zero for most flows, with a few exceptions.  
-   - Reflects the bursty, short-lifetime nature of botnet flows.
-
-2. **Pair Plot (Numeric Features) with Hue=Botnet**  
-   ![Pair Plot of Numeric Features (Green=Normal, Red=Botnet)](./plots/S4_pairplot_numeric_botnet.png)  
-   **Analysis:**  
-   - Shows scatter relationships among features (TotPkts, TotBytes, BytesPerSecond, BytePktRatio, etc.).  
-   - Botnet points (red) often cluster distinctly from Normal (green), suggesting high separability.  
-   - Helps identify key features for classification.
-
-3. **Strip Plot of BytesPerSecond by Botnet Label**  
-   ![Strip Plot of BytesPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_stripplot_bytespersec_botnet.png)  
-   **Analysis:**  
-   - Plots individual flows, revealing that **normal** can have extremely high BytesPerSecond while **botnet** mostly remains near zero or in discrete bursts.  
-   - A few outliers in botnet traffic still stand out at ~1.5e6 B/s.
-
-4. **Box Plot of PktsPerSecond by Botnet Label**  
-   ![Box Plot of PktsPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_boxplot_pktspersec_botnet.png)  
-   **Analysis:**  
-   - Normal traffic (green) has a wide distribution, including outliers up to 12,000 pkts/sec.  
-   - Botnet (red) is mostly near zero, implying either minimal or very short bursts.  
-   - Highlights the difference in packet rates.
-
-5. **Count Plot of SportRange by Botnet Label**  
-   ![Count Plot of SportRange by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_countplot_sortrange_botnet.png)  
-   **Analysis:**  
-   - SportRange = 2 (ephemeral range) dominates botnet flows (red).  
-   - Normal flows have more variety in port usage.  
-   - Confirms that botnet C2 or spamming often uses ephemeral or registered ports.
-
-6. **Hierarchically Clustered Correlation Heatmap**  
-   ![Hierarchically Clustered Correlation Heatmap](./plots/S4_correlation_clustered.png)  
-   **Analysis:**  
-   - Groups correlated features together, revealing strong relationships (e.g., `PktsPerSecond` ↔ `BytesPerSecond`).  
-   - BytePktRatio has moderate negative correlation with some others.  
-   - Helps shape which features might be redundant.
-
-7. **Botnet vs Normal Distribution**  
-   ![Botnet vs Normal Distribution](./plots/S4_botnet_distribution.png)  
-   **Analysis:**  
-   - Bar/Pie chart specifically showing **8,164 botnet flows vs. 2,718 normal flows**.  
-   - Botnet is about 75% of the combined Botnet+Normal subset.  
-   - Implies a strong class imbalance in that subset alone.
 
 ---
 
