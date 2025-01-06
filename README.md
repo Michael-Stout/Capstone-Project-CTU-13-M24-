@@ -19,7 +19,7 @@ For this analysis, Scenario 11 contained:
 - 2,718 normal traffic instances  
 - 96,369 background traffic instances  
 
-The dataset represents real botnet traffic mixed with normal traffic and background traffic. Scenario 11 specifically captured the behavior of Rbot, which was a family of malware known for its backdoor capabilities and use in creating botnets.
+The dataset represents real botnet traffic mixed with normal traffic and background traffic. Scenario 11 specifically captured the behavior of Rbot, a family of malware known for its backdoor capabilities and use in creating botnets.
 
 Reference:  Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro Zunino. "An empirical comparison of botnet detection methods," *Computers and Security Journal, Elsevier*. 2014. Vol 45, pp 100-123.
 
@@ -30,12 +30,8 @@ Key data features include:
 - Traffic flow statistics (packets, bytes)
 - Connection states
 
----
-
 ## Scope
 This analysis focuses on the **CTU-13 dataset’s Scenario 11** to illustrate how machine learning can detect botnet-related network flows among predominantly background traffic. While Scenario 11 is featured, many of these techniques also generalize across additional CTU-13 scenarios.
-
----
 
 ## Methodology
 
@@ -46,9 +42,32 @@ At the start of the project, I loaded the necessary Python libraries to load and
 
 **Section 2: Data Loading & Exploration**
 
-In this section, I **loaded** the raw network traffic data (107,251 records) and **explored** its structure. Specifically, I:
+In this section, I loaded the network traffic data (107,251 records) and explored its structure. 
 
-#### Missing Values per Column
+In my initial analysis, I discovered the following.
+
+1. Traffic Distribution
+2. Missing Values
+3. Traffic Types
+4. Traffic Characteristics
+
+
+#### Traffic Distribution
+| Category  | Metric                                                    |                                          Value |
+|:--------- |:--------------------------------------------------------- |----------------------------------------------:|
+| Botnet    | Number of unique Botnet source IPs                        | 3                          |
+| Botnet    | Number of unique Botnet Targets IPs                       | 9                          |
+| Botnet    | Number of Botnet sockets (SrcAddr, Sport, DstAddr, Dport) | 8155                             |
+| Normal    | Number of Normal Sockets                                  | 613                             |
+| Botnet    | Total Botnet packets                                      | 55504                       |
+| Normal    | Total Normal Packets                                      | 29466                       |
+| Botnet    | Botnet Packet Size (bytes) [min, mean, max]               | [90.00, 1063.77, 1066.00]  |
+| Normal    | Normal Packet Size (bytes) [min, mean, max]               | [60.00, 96.24, 1010.29] |
+| Botnet    | Botnet Duration (seconds) [min, mean, max]                | [0.00, 7.86, 416.85] |
+| Normal    | Normal Duration (seconds) [min, mean, max]                | [0.00, 7.88, 969.98] |
+
+
+#### Missing Values
 |            |     0 |
 |:-----------|------:|
 | StartTime  |     0 |
@@ -68,61 +87,49 @@ In this section, I **loaded** the raw network traffic data (107,251 records) and
 | Label      |     0 |
 | LabelGroup |     0 |
 
-**Analysis:**  
+Analysis:
 - **Sport** (source port) occasionally not recorded → 463 missing.  
 - **Dport** (destination port) has 7,900 missing entries.  
 - **State** is missing in 91 flows.  
 - **dTos** is missing in 16,959 flows (often unrecorded or irrelevant).  
 
----
-**Botnet Source → Target Destinations**  
+
+#### Traffic Types
+   ![Distribution of Target Variable](./plots/S2_target_distribution_combined.png)  
+   
+   Analysis:  
+   - **Background (blue):** 96,369 records (~89.9%)  
+   - **Botnet (red):** 8,164 records (~7.6%)  
+   - **Normal (green):** 2,718 records (~2.5%)  
+   - Significant class imbalance with background dominating.
+
+
+#### Traffic Characteristics
+**Botnet Source → Target Destination Graph**  
    ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
-   **Analysis:**  
+   
+   Analysis:  
    - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
    - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
 
 
-#### Traffic Distribution Table
-| Category  | Metric                                                    |                                          Value |
-|:--------- |:--------------------------------------------------------- |----------------------------------------------:|
-| Botnet    | Number of unique Botnet source IPs                        | 3                          |
-| Botnet    | Number of unique Botnet Targets IPs                       | 9                          |
-| Botnet    | Number of Botnet sockets (SrcAddr, Sport, DstAddr, Dport) | 8155                             |
-| Normal    | Number of Normal Sockets                                  | 613                             |
-| Botnet    | Total Botnet packets                                      | 55504                       |
-| Normal    | Total Normal Packets                                      | 29466                       |
-| Botnet    | Botnet Packet Size (bytes) [min, mean, max]               | [90.00, 1063.77, 1066.00]  |
-| Normal    | Normal Packet Size (bytes) [min, mean, max]               | [60.00, 96.24, 1010.29] |
-| Botnet    | Botnet Duration (seconds) [min, mean, max]                | [0.00, 7.86, 416.85] |
-| Normal    | Normal Duration (seconds) [min, mean, max]                | [0.00, 7.88, 969.98] |
-
-**Analysis:**  
-- Botnet traffic is relatively **burst-like** (short durations) compared to Normal but with higher average byte counts per packet.  
-- Relatively few unique Botnet source IPs (3) vs. many background IPs.
-
-#### Exploration Plots
-
-6. **Time-Based Packets Chart**  
+**Time-Based Packets Chart**  
    ![Time-based Packets Chart (Scaled, All Traffic)](./plots/S2_time_based_totpkts_all_scaled.png)  
-   **Analysis:**  
+  
+   Analysis:  
    - Background traffic dominates packet volume.  
    - Botnet (red) shows sharp bursts.  
    - Normal (green) remains modest in total packets per minute.
 
 
-7. **Time-Based Average Duration Chart**  
+**Time-Based Average Duration Chart**  
    ![Time-based Average Duration Chart (Scaled, All Traffic)](./plots/S2_time_based_avg_dur_all_scaled.png)  
-   **Analysis:**  
+   
+   Analysis:  
    - Botnet flows (red) often remain short but can spike.  
    - Background (blue) typically has moderate-to-high durations.  
    - Normal (green) fluctuates but has fewer flows overall.
 
-
-8. **Botnet Source → Target Destination Graph**  
-   ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
-   **Analysis:**  
-   - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
-   - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
 
 ### Feature Engineering**  
 **Section 3: Data Cleaning & Feature Engineering***
