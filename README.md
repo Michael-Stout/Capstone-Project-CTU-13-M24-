@@ -2,261 +2,386 @@
 **Author:** Michael Stout
 
 ## Executive Summary
-This project analyzes network traffic data to detect and classify botnet activities using various machine learning techniques. Through processing over 107,000 network traffic records from the CTU-13 dataset (Scenario 11), we identified clear distinctions between normal and malicious (botnet) traffic. Multiple models (Random Forest, Decision Tree, Naive Bayes, K-Nearest Neighbors (KNN), SVM, Logistic Regression, and Gradient Boosting) were trained, tuned, and evaluated.  
-Notably, **KNN** demonstrated exceptional performance, achieving near-perfect classification metrics both on Scenario 11 and when tested against other CTU-13 scenarios.
+This project analyzes network traffic data to detect and classify botnet activities using machine learning techniques. The analysis processed over 107,000 network traffic records, identifying patterns between normal and botnet traffic. The project successfully developed enhanced feature engineering techniques and visualization methods to improve botnet detection accuracy.
 
 ## Rationale
-Modern cyber threats (particularly botnets and zero-day exploits) create significant risks to network security. Signature-based detection methods often fail to catch new or evolving threats, whereas machine learning offers an adaptive, proactive defense mechanism. By employing classification models and engineered network traffic features, organizations can more effectively detect suspicious behavior in real time.
+Modern cyber threats, particularly botnets and zero-day exploits, pose significant risks to network security. Traditional signature-based detection methods often fail to identify new or evolving threats. Machine learning approaches offer the potential for more adaptive and proactive defense mechanisms, which are crucial for protecting individual users and organizations from emerging cyber threats.
 
 ## Research Question
-**How can machine learning techniques enhance the detection of zero-day exploits and botnet activities within network traffic?**  
-Specifically, **which network traffic patterns and features** most indicate botnet activity?
+How can machine learning techniques enhance the detection of zero-day exploits and botnet activities within network traffic? Specifically, what network traffic patterns and features most indicate botnet activity?
 
 ## Data Sources
-This analysis used the [CTU-13 Dataset](https://www.stratosphereips.org/datasets-ctu13#:~:text=The%20CTU%2D13%20is%20a,normal%20traffic%20and%20background%20traffic.), focusing on Scenario 11. Key details include:
+This study utilized the [CTU-13 Dataset](https://www.stratosphereips.org/datasets-ctu13#:~:text=The%20CTU%2D13%20is%20a,normal%20traffic%20and%20background%20traffic.), specifically Scenario 11, which is part of a comprehensive botnet capture effort by the Czech Technical University (CTU) in Prague. The CTU-13 dataset is a labeled dataset of botnet, normal, and background traffic captured in 2011 from the CTU University network.
 
-- **Total records:** 107,251  
-- **Botnet traffic:** 8,164  
-- **Normal traffic:** 2,718  
-- **Background traffic:** 96,369  
+For this analysis, Scenario 11 contained:
+- 107,251 total network traffic records  
+- 8,164 botnet traffic instances  
+- 2,718 normal traffic instances  
+- 96,369 background traffic instances  
 
-Scenario 11 captures the **Neris botnet**, known for spamming and click fraud.  
+The dataset represents real botnet traffic mixed with normal traffic and background traffic. Scenario 11 specifically captured the behavior of a Neris botnet known for spamming and click fraud activities.
+
 Reference:  
-Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro Zunino. "An empirical comparison of botnet detection methods," *Computers and Security Journal*, Elsevier. 2014. Vol 45, pp 100-123.
+Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro Zunino. "An empirical comparison of botnet detection methods," *Computers and Security Journal, Elsevier*. 2014. Vol 45, pp 100-123.
 
-## Methodology
-1. **Data Processing & Cleaning**  
-   - Loaded raw network traffic data (107,251 records).  
-   - Handled missing values for ports, states, and traffic characteristics.  
-   - Grouped traffic types into **Background**, **Botnet**, and **Normal** categories.  
-   - Created enhanced features, such as `BytePktRatio`, entropy metrics, traffic flow statistics, and duration categories.
-
-2. **Feature Engineering**  
-   - **Duration categories** (`very_short`, `short`, `medium`, `long`).  
-   - **Byte-per-packet ratio** and **bytes/packets per second**.  
-   - **Entropy metrics** for source and destination IP addresses.  
-   - **Categorical encoding** for protocol, direction, port ranges, etc.
-
-3. **Model Development**  
-   - **Multiple Classifiers:**  
-     - Random Forest  
-     - Decision Tree  
-     - Naive Bayes  
-     - **KNN**  
-     - SVM  
-     - Logistic Regression  
-     - Gradient Boosting  
-   - **Hyperparameter Tuning:** Used GridSearchCV.  
-   - **Cross-Validation:** Validated each model’s performance using multiple folds.
-
-4. **Analysis & Visualization**  
-   - Explored distribution of botnet vs. normal traffic.  
-   - Created correlation heatmaps, bar charts, scatter/strip plots, pair plots, etc.  
-   - Generated metrics including F1 Score, Precision, Recall, ROC AUC, Log Loss, and Mean Average Precision (mAP).
-
-## Results
-### Overall Model Performance
-Across all models, classification metrics (Accuracy, F1, Precision, Recall) were **extremely high**. Each model achieved an F1 > 0.998 on the test set. Below is a brief summary:
-
-| Model               | Test Accuracy | Test F1   | ROC AUC | Log Loss  |
-|---------------------|--------------:|----------:|--------:|----------:|
-| RandomForest        | 0.9986       | 0.9991    | 1.0000  | 0.0024    |
-| DecisionTree        | 0.9995       | 0.9997    | 0.9991  | 0.0166    |
-| NaiveBayes          | 0.9986       | 0.9991    | 0.9986  | 0.0497    |
-| **KNN**             | **0.9991**   | **0.9994**| **1.0000** | **0.0016** |
-| SVM                 | 0.9991       | 0.9994    | 0.9989  | 0.0097    |
-| LogisticRegression  | 0.9986       | 0.9991    | 0.9999  | 0.0059    |
-| GradientBoosting    | 0.9986       | 0.9991    | 1.0000  | 0.0030    |
-
-All models reached near-perfect scores. **KNN** stood out for its perfect ROC AUC = 1.0000 and highest F1 Score on the test set.  
-
-**Sample Plots**  
-- Precision-Recall Curve for RandomForest: [S5_pr_curve_RandomForest](./plots/S5_pr_curve_RandomForest.png)  
-- Gains Chart for DecisionTree: [S5_gains_DecisionTree](./plots/S5_gains_DecisionTree.png)  
-- Confusion Matrix (KNN): [S5_confusion_matrix_KNN](./plots/S5_confusion_matrix_KNN.png)  
-
-### Model-Specific Insights
-Below, each model is grouped into its own subsection with key plots, strengths, and weaknesses.
-
-#### 1. Random Forest
-**Key Plots**  
-- Precision-Recall: [S5_pr_curve_RandomForest](./plots/S5_pr_curve_RandomForest.png)  
-- ROC Curve: [S5_roc_RandomForest](./plots/S5_roc_RandomForest.png)  
-- Feature Importances: [S5_top10_features_RandomForest](./plots/S5_top10_features_RandomForest.png)  
-
-**Strengths**  
-- Handles high-dimensional data and complex interactions well.  
-- Robust to outliers and missing data.  
-
-**Weaknesses**  
-- Larger memory footprint.  
-- Can be slower to train with large parameter grids.
-
-#### 2. Decision Tree
-**Key Plots**  
-- Precision-Recall: [S5_pr_curve_DecisionTree](./plots/S5_pr_curve_DecisionTree.png)  
-- ROC Curve: [S5_roc_DecisionTree](./plots/S5_roc_DecisionTree.png)  
-- Feature Importances: [S5_top10_features_DecisionTree](./plots/S5_top10_features_DecisionTree.png)  
-
-**Strengths**  
-- Very interpretable with straightforward rules.  
-- Fast to train.  
-
-**Weaknesses**  
-- Prone to overfitting if not well-pruned.  
-- Less robust for complex boundary classifications without ensemble methods.
-
-#### 3. Naive Bayes
-**Key Plots**  
-- Precision-Recall: [S5_pr_curve_NaiveBayes](./plots/S5_pr_curve_NaiveBayes.png)  
-- ROC Curve: [S5_roc_NaiveBayes](./plots/S5_roc_NaiveBayes.png)  
-
-**Strengths**  
-- Extremely fast to train.  
-- Theoretically optimal for independent features.  
-
-**Weaknesses**  
-- Assumes (often unrealistic) independence among features.  
-- No direct measure of feature importance available (in the standard approach).
-
-#### 4. K-Nearest Neighbors (KNN)
-**Key Plots**  
-- Precision-Recall: [S5_pr_curve_KNN](./plots/S5_pr_curve_KNN.png)  
-- ROC Curve: [S5_roc_KNN](./plots/S5_roc_KNN.png)  
-- Confusion Matrix: [S5_confusion_matrix_KNN](./plots/S5_confusion_matrix_KNN.png)  
-
-**Strengths**  
-- Simple, highly effective for well-separated classes.  
-- Easy to implement, no explicit training step beyond storing data.  
-
-**Weaknesses**  
-- Computation cost grows with dataset size.  
-- Performance can degrade with high-dimensional data if not carefully tuned.
-
-#### 5. Support Vector Machine (SVM)
-**Key Plots**  
-- Precision-Recall: [S5_pr_curve_SVM](./plots/S5_pr_curve_SVM.png)  
-- ROC Curve: [S5_roc_SVM](./plots/S5_roc_SVM.png)  
-- Feature Weights: [S5_top10_features_SVM](./plots/S5_top10_features_SVM.png)  
-
-**Strengths**  
-- Effective in high dimensional spaces.  
-- Many kernel functions for different data complexities.  
-
-**Weaknesses**  
-- Can be slower in large datasets.  
-- Needs careful tuning of kernel parameters.
-
-#### 6. Logistic Regression
-**Key Plots**  
-- Precision-Recall: [S5_pr_curve_LogisticRegression](./plots/S5_pr_curve_LogisticRegression.png)  
-- ROC Curve: [S5_roc_LogisticRegression](./plots/S5_roc_LogisticRegression.png)  
-- Feature Coefficients: [S5_top10_features_LogisticRegression](./plots/S5_top10_features_LogisticRegression.png)  
-
-**Strengths**  
-- Offers clear, interpretable coefficients.  
-- Fast training times.  
-
-**Weaknesses**  
-- Assumes a linear decision boundary.  
-- Susceptible to underfitting if relationships are highly non-linear.
-
-#### 7. Gradient Boosting
-**Key Plots**  
-- Precision-Recall: [S5_pr_curve_GradientBoosting](./plots/S5_pr_curve_GradientBoosting.png)  
-- ROC Curve: [S5_roc_GradientBoosting](./plots/S5_roc_GradientBoosting.png)  
-- Feature Importances: [S5_top10_features_GradientBoosting](./plots/S5_top10_features_GradientBoosting.png)  
-
-**Strengths**  
-- Often delivers state-of-the-art predictive performance.  
-- Can handle diverse data types and reduce bias from weaker learners.  
-
-**Weaknesses**  
-- Tends to overfit if not tuned carefully.  
-- Longer training times than simpler models.
+Key data features include:
+- Temporal information (StartTime, Duration)
+- Network protocol information
+- Source and destination addresses
+- Traffic flow statistics (packets, bytes)
+- Connection states
 
 ---
 
-## Detailed KNN Performance (Section 7)
-After selecting **KNN** as our primary model, we evaluated it across all **13 scenarios** of the CTU-13 dataset. This cross-scenario validation highlights how well KNN generalizes:
+## Scope
+This analysis focuses on the **CTU-13 dataset’s Scenario 11** to illustrate how machine learning can detect botnet-related network flows among predominantly background traffic. While Scenario 11 is featured, many of these techniques also generalize across additional CTU-13 scenarios.
 
-- **Perfect accuracy (1.0)** achieved on 6 scenarios (e.g., Rbot Scenarios 3,4,10,11 and Virut Scenarios 5,13).  
-- **Above 0.99 accuracy** on an additional 5 scenarios.  
-- **Notable Challenges**:  
-  - **Scenario 9 (Neris)**: 0.977 accuracy  
-  - **Scenario 12 (NsisAy)**: 0.978 accuracy  
+---
 
-Despite these slight drops, KNN consistently maintained extremely high performance (F1 often > 0.99). The minor decreases in accuracy highlight how some botnet families (e.g., Neris) produce more varied traffic patterns, thus slightly challenging the distance-based classification.  
+## Methodology
+### Section 1 Import Libraries, Implement Logging & Set Global Variables
+At the start of the project, I loaded the necessary Python libraries to load and analyze the dataset. I also implemented logging and set global variables.
 
-| Scenario       | Accuracy  | Comments                                    |
-|--------------- |----------:|--------------------------------------------|
-| 1-Neris        | 0.9998    | Nearly perfect performance                 |
-| 2-Neris        | 0.9997    | Perfect recall in this scenario            |
-| 3-Rbot         | 1.0000    | Perfect detection of Rbot traffic          |
-| 4-Rbot         | 1.0000    | 100% accuracy, all classes                 |
-| 5-Virut        | 1.0000    | Perfect classification                     |
-| 6-Menti        | 1.0000    | Perfect classification                     |
-| 7-Sogou        | 1.0000    | Perfect classification                     |
-| 8-Murlo        | 0.9999    | Nearly perfect detection                   |
-| 9-Neris        | 0.9770    | Most challenging Neris scenario            |
-| 10-Rbot        | 0.9993    | Achieved near-perfect detection            |
-| 11-Rbot        | 0.9991    | Very high accuracy                         |
-| 12-NsisAy      | 0.9780    | Next most challenging scenario (NsisAy)    |
-| 13-Virut       | 0.9997    | Excellent detection accuracy               |
+### Section 2: Load and Explore Data
+In this section, we **load** the raw network traffic data (107,251 records) and **explore** its structure. Specifically, I:
 
-### Key Takeaways
-- **Generalization:** KNN’s ability to classify diverse botnet families (Neris, Rbot, Virut, etc.) with near-perfect results underscores its robustness.  
-- **Challenging Scenarios:** Some families, like Neris (Scenario 9) and NsisAy (Scenario 12), slightly reduced performance due to more complex distribution of features.  
-- **Conclusion:** KNN stands out as a top choice for real-world detection across multiple botnet families if computational resources are sufficient.
+- **Handled missing values** for ports, states, and traffic characteristics.
+- **Grouped traffic types** into **Background**, **Botnet**, and **Normal** categories.
+- **Created enhanced features**, such as:
+  - **BytePktRatio** (ratio of total bytes to total packets)
+  - **Entropy** metrics for Source and Destination IP
+  - **Traffic flow** statistics
+  - **Duration categories** (`very_short`, `short`, `medium`, `long`)
+
+Below are the primary tables and plots illustrating this data exploration:
+
+#### Missing Values per Column
+|            |     0 |
+|:-----------|------:|
+| StartTime  |     0 |
+| Dur        |     0 |
+| Proto      |     0 |
+| SrcAddr    |     0 |
+| Sport      |   463 |
+| Dir        |     0 |
+| DstAddr    |     0 |
+| Dport      |  7900 |
+| State      |    91 |
+| sTos       |   980 |
+| dTos       | 16959 |
+| TotPkts    |     0 |
+| TotBytes   |     0 |
+| SrcBytes   |     0 |
+| Label      |     0 |
+| LabelGroup |     0 |
+
+**Analysis:**  
+- **Sport** (source port) occasionally not recorded → 463 missing.  
+- **Dport** (destination port) has 7,900 missing entries.  
+- **State** is missing in 91 flows.  
+- **dTos** is missing in 16,959 flows (often unrecorded or irrelevant).  
+
+---
+
+#### Traffic Distribution Table
+| Category  | Metric                                                    |                                          Value |
+|:--------- |:--------------------------------------------------------- |----------------------------------------------:|
+| Botnet    | Number of unique Botnet source IPs                        | 3                          |
+| Botnet    | Number of unique Botnet Targets IPs                       | 9                          |
+| Botnet    | Number of Botnet sockets (SrcAddr, Sport, DstAddr, Dport) | 8155                             |
+| Normal    | Number of Normal Sockets                                  | 613                             |
+| Botnet    | Total Botnet packets                                      | 55504                       |
+| Normal    | Total Normal Packets                                      | 29466                       |
+| Botnet    | Botnet Packet Size (bytes) [min, mean, max]               | [90.00, 1063.77, 1066.00]  |
+| Normal    | Normal Packet Size (bytes) [min, mean, max]               | [60.00, 96.24, 1010.29] |
+| Botnet    | Botnet Duration (seconds) [min, mean, max]                | [0.00, 7.86, 416.85] |
+| Normal    | Normal Duration (seconds) [min, mean, max]                | [0.00, 7.88, 969.98] |
+
+**Analysis:**  
+- Botnet traffic is relatively **burst-like** (short durations) compared to Normal but with higher average byte counts per packet.  
+- Relatively few unique Botnet source IPs (3) vs. many background IPs.
+
+---
+
+#### Key Exploration Plots
+
+1. **Botnet Source → Target Destination Graph**  
+   ![Botnet Source → Target Destination Graph (Red=Botnet IP, Green=Target IP, Purple=Overlap)](./plots/S2_botnet_src_dist_plot.png)  
+   **Analysis:**  
+   - Shows **3 main Botnet source IPs** connecting to multiple target IPs.  
+   - Demonstrates the concentrated nature of Botnet flows pivoting to numerous destinations.
+
+2. **Distribution of Target Variable**  
+   ![Distribution of Target Variable](./plots/S2_target_distribution_combined.png)  
+   **Analysis:**  
+   - **Background (blue):** 96,369 records (~89.9%)  
+   - **Botnet (red):** 8,164 records (~7.6%)  
+   - **Normal (green):** 2,718 records (~2.5%)  
+   - Significant class imbalance with background dominating.
+
+3. **Time-Based Average Duration Chart**  
+   ![Time-based Average Duration Chart (Scaled, All Traffic)](./plots/S2_time_based_avg_dur_all_scaled.png)  
+   **Analysis:**  
+   - Botnet flows (red) often remain short in duration but can spike.  
+   - Background (blue) typically has moderate-to-high durations.  
+   - Normal (green) fluctuates but has fewer flows overall.
+
+4. **Time-Based Packets Chart**  
+   ![Time-based Packets Chart (Scaled, All Traffic)](./plots/S2_time_based_totpkts_all_scaled.png)  
+   **Analysis:**  
+   - Background traffic dominates packet volume.  
+   - Botnet (red) shows sharp bursts.  
+   - Normal (green) remains modest in total packets per minute.
+
+5. **Top 20 Destination IP Chart (Normal + Botnet Traffic)**  
+   ![Top 20 Destination IP Chart, Scaled (Normal + Botnet)](./plots/S2_top_20_dst_ips_botnet_normal_scaled.png)  
+   **Analysis:**  
+   - Shows which IPs Normal vs. Botnet traffic target the most.  
+   - Botnet flows (red) concentrate on fewer IP addresses.
+
+6. **Top 20 Destination IP Chart (All Traffic)**  
+   ![Top 20 Destination IP Chart, Scaled (All Traffic)](./plots/S2_top_20_dst_ips_all_scaled.png)  
+   **Analysis:**  
+   - Background flows (blue) span many destinations.  
+   - Botnet (red) is relatively small but visible in certain bars.
+
+7. **Top 20 Source IP Chart (Normal + Botnet Traffic)**  
+   ![Top 20 Source IP Chart, Scaled (Normal + Botnet)](./plots/S2_top_20_src_ips_botnet_normal_scaled.png)  
+   **Analysis:**  
+   - Reveals which source IPs are predominantly botnet vs. normal.  
+   - Botnet (red) is again more concentrated than normal (green).
+
+8. **Top 20 Source IP Chart (All Traffic)**  
+   ![Top 20 Source IP Chart, Scaled (All Traffic)](./plots/S2_top_20_src_ips_all_scaled.png)  
+   **Analysis:**  
+   - Background (blue) has the greatest variety of source IP addresses.  
+   - Botnet (red) stands out in specific IPs, confirming its narrow distribution.
+
+---
+
+#### Additional Feature Distributions
+
+During the **enhanced feature engineering** stage, we created or transformed features that help highlight differences among botnet vs. normal vs. background:
+
+1. **Distribution of DstAddrEntropy**  
+   ![Distribution of DstAddrEntropy (Log/Symlog)](./plots/S3_dst_addr_entropy_dist.png)  
+   **Analysis:**  
+   - Most flows cluster around a high-entropy region, indicating many distinct destination addresses.  
+   - A small tail suggests some flows target the same destination repeatedly.
+
+2. **Distribution of SrcAddrEntropy**  
+   ![Distribution of SrcAddrEntropy (Log/Symlog)](./plots/S3_src_addr_entropy_dist.png)  
+   **Analysis:**  
+   - Two major peaks indicate groups of flows with differing variability in source IP addresses.  
+   - Botnet sources often show lower entropy if they come from fewer infected hosts.
+
+3. **Distribution of PktsPerSecond**  
+   ![Distribution of PktsPerSecond (Log/Symlog)](./plots/S3_pkts_per_second_dist.png)  
+   **Analysis:**  
+   - Most flows have very low PktsPerSecond, but a few outliers have extremely high rates.  
+   - Such outliers often correspond to short, intense bursts of traffic.
+
+4. **Distribution of BytesPerSecond**  
+   ![Distribution of BytesPerSecond (Log/Symlog)](./plots/S3_bytes_per_second_dist.png)  
+   **Analysis:**  
+   - Similar pattern: many flows near zero, with outliers showing high bandwidth usage.  
+   - Key for spotting large data exfiltration or DDoS-like behavior.
+
+5. **Box Plot of BytePktRatio**  
+   ![Box Plot of BytePktRatio (Log/Symlog)](./plots/S3_bytepktratio_boxplot.png)  
+   **Analysis:**  
+   - BytePktRatio exhibits a wide range.  
+   - High ratios mean large payloads per packet; extremely low ratios reflect frequent small packets.
+
+6. **Distribution of DurCategory**  
+   ![Distribution of DurCategory (Log-Scaled Counts)](./plots/S3_durcategory_distribution.png)  
+   **Analysis:**  
+   - The vast majority of flows are **very_short**.  
+   - Few flows are labeled `short`, `medium`, or `long`.
+
+---
+
+### Section 4: Visualizations
+
+In this section, we present additional plots that focus on distinguishing **Botnet vs. Normal** traffic. These visualizations allow us to see how critical features (BytesPerSecond, PktsPerSecond, SportRange, etc.) vary between the two classes.
+
+1. **Violin Plot of BytesPerSecond by Botnet Label**  
+   ![Violin Plot of BytesPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_violinplot_bytespersec_botnet.png)  
+   **Analysis:**  
+   - Normal traffic (green) covers a broad range of BytesPerSecond, from near-zero to well over 1e6.  
+   - Botnet traffic (red) remains close to zero for most flows, with a few exceptions.  
+   - Reflects the bursty, short-lifetime nature of botnet flows.
+
+2. **Pair Plot (Numeric Features) with Hue=Botnet**  
+   ![Pair Plot of Numeric Features (Green=Normal, Red=Botnet)](./plots/S4_pairplot_numeric_botnet.png)  
+   **Analysis:**  
+   - Shows scatter relationships among features (TotPkts, TotBytes, BytesPerSecond, BytePktRatio, etc.).  
+   - Botnet points (red) often cluster distinctly from Normal (green), suggesting high separability.  
+   - Helps identify key features for classification.
+
+3. **Strip Plot of BytesPerSecond by Botnet Label**  
+   ![Strip Plot of BytesPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_stripplot_bytespersec_botnet.png)  
+   **Analysis:**  
+   - Plots individual flows, revealing that **normal** can have extremely high BytesPerSecond while **botnet** mostly remains near zero or in discrete bursts.  
+   - A few outliers in botnet traffic still stand out at ~1.5e6 B/s.
+
+4. **Box Plot of PktsPerSecond by Botnet Label**  
+   ![Box Plot of PktsPerSecond by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_boxplot_pktspersec_botnet.png)  
+   **Analysis:**  
+   - Normal traffic (green) has a wide distribution, including outliers up to 12,000 pkts/sec.  
+   - Botnet (red) is mostly near zero, implying either minimal or very short bursts.  
+   - Highlights the difference in packet rates.
+
+5. **Count Plot of SportRange by Botnet Label**  
+   ![Count Plot of SportRange by Botnet Label (0=Normal, 1=Botnet)](./plots/S4_countplot_sortrange_botnet.png)  
+   **Analysis:**  
+   - SportRange = 2 (ephemeral range) dominates botnet flows (red).  
+   - Normal flows have more variety in port usage.  
+   - Confirms that botnet C2 or spamming often uses ephemeral or registered ports.
+
+6. **Hierarchically Clustered Correlation Heatmap**  
+   ![Hierarchically Clustered Correlation Heatmap](./plots/S4_correlation_clustered.png)  
+   **Analysis:**  
+   - Groups correlated features together, revealing strong relationships (e.g., `PktsPerSecond` ↔ `BytesPerSecond`).  
+   - BytePktRatio has moderate negative correlation with some others.  
+   - Helps shape which features might be redundant.
+
+7. **Botnet vs Normal Distribution**  
+   ![Botnet vs Normal Distribution](./plots/S4_botnet_distribution.png)  
+   **Analysis:**  
+   - Bar/Pie chart specifically showing **8,164 botnet flows vs. 2,718 normal flows**.  
+   - Botnet is about 75% of the combined Botnet+Normal subset.  
+   - Implies a strong class imbalance in that subset alone.
+
+---
+
+## Model Development (Summary of Later Sections)
+1. **Data Processing and Cleaning:**  
+   - Dealt with missing values in Sport, Dport, State, sTos, and dTos.  
+   - Merged or dropped irrelevant columns (if any).  
+   - Generated new columns (entropy features, BytePktRatio, etc.).
+
+2. **Feature Engineering:**  
+   - Created categorical features for the duration (`very_short`, `short`, `medium`, `long`).  
+   - Developed byte-packet ratio analysis.  
+   - Implemented traffic flow statistics.  
+   - Generated entropy-based metrics for source and destination addresses.
+
+3. **Model Development:**  
+   - Implemented multiple classification algorithms:
+     - Random Forest
+     - Decision Tree
+     - Naive Bayes
+     - K-Nearest Neighbors (KNN)
+     - Support Vector Machine (SVM)
+     - Logistic Regression
+     - Gradient Boosting
+   - Used GridSearchCV for hyperparameter optimization.
+   - Implemented cross-validation for model validation.
+
+4. **Analysis Techniques:**  
+   - Statistical analysis of traffic patterns  
+   - Time-series analysis of network flows  
+   - Advanced visualization techniques  
+   - Machine learning classification models
+
+---
+
+## Results
+The analysis yielded comprehensive insights into botnet detection capabilities:
+
+1. **Model Performance:**
+   - KNN emerged as the top performer with:
+     - Test Accuracy: 0.9991
+     - Perfect ROC AUC: 1.0000
+     - Lowest Log Loss: 0.0016
+     - Perfect mAP score: 1.0000
+   - All models achieved F1 scores > 0.999
+   - Extremely high precision and recall across all models
+
+2. **Cross-Dataset Validation:**
+   - Evaluated KNN model across all 13 scenarios in the CTU-13 dataset:
+     - Perfect accuracy (1.0) achieved on 6 scenarios
+     - >0.99 accuracy achieved on 5 scenarios
+     - >0.97 accuracy achieved on 2 scenarios
+   - Notable results per botnet type:
+     - Rbot scenarios (3,4,10,11): Consistently achieved 0.999+ accuracy
+     - Neris scenarios (1,2,9): Achieved 0.97-0.999 accuracy
+     - Virut scenarios (5,13): Perfect or near-perfect accuracy
+     - More challenging scenarios:
+       - Scenario 9 (Neris): 0.977 accuracy
+       - Scenario 12 (NsisAy): 0.978 accuracy
+
+3. **Feature Importance:**
+   - BytePktRatio emerged as the most significant feature
+   - SrcBytes and TotBytes showed high importance
+   - Network entropy measures proved valuable for classification
+
+4. **Traffic Distribution:**
+   - Botnet traffic: 8,164 instances
+   - Normal traffic: 2,718 instances
+   - Clear distinctions in traffic patterns between botnet and normal flows
+
+5. **Characteristic Patterns:**
+   - Botnet packet sizes: 90.00-1066.00 bytes (mean: 1063.77)
+   - Normal packet sizes: 60.00-1010.29 bytes (mean: 96.24)
+   - Distinct duration patterns:
+     - Botnet: 0.00-416.85 seconds
+     - Normal: 0.00-969.98 seconds
+
+6. **Network Behavior:**
+   - Identified 3 unique botnet source IPs
+   - Detected 9 unique botnet target IPs
+   - Documented 8,155 unique botnet sockets
 
 ---
 
 ## Next Steps
-1. **Model Deployment**  
-   - Deploy KNN as the primary classifier within a real-time pipeline.  
-   - Integrate alerts and dashboards for immediate threat detection.
+1. **Model Deployment:**
+   - Implement KNN model as the primary classifier
+   - Create a real-time classification pipeline
+   - Develop monitoring and alerting systems
 
-2. **Feature Enhancement**  
-   - Explore additional protocol-level features, deep packet inspection data, and advanced entropy-based metrics.  
-   - Incorporate time-series or streaming analysis for real-time monitoring.
+2. **Feature Enhancement:**
+   - Explore additional protocol-specific features
+   - Implement deep packet inspection features
+   - Integrate temporal pattern analysis
 
-3. **Performance Optimization**  
-   - Scale KNN for real-time predictions (e.g., approximate nearest neighbors).  
-   - Automate data preprocessing and model retraining as new threats emerge.
+3. **Performance Optimization:**
+   - Optimize KNN for real-time classification
+   - Implement efficient data preprocessing pipeline
+   - Develop automated model retraining procedures
 
-4. **Operational Integration**  
-   - Design and implement a robust, scalable architecture for deployment.  
-   - Implement automated mitigation or response mechanisms for detected threats.
+4. **Operational Integration:**
+   - Design scalable deployment architecture
+   - Implement automated response mechanisms
+   - Create a monitoring dashboard for model performance
+   - Implement real-time detection capabilities
+   - Develop adaptive learning mechanisms
+   - Integrate additional network metrics
 
 ---
 
 ## Outline of Project
 
-### 1. Network Analysis
-- **Section 1:** [Import Libraries & Logging](./plots/S2_time_based_totpkts_all_scaled.png)  
-  Sets up logging, imports standard libraries, and configures global variables.  
-- **Section 2:** [Data Loading & Exploration](./plots/S2_target_distribution_combined.png)  
-  Loads dataset(s), explores columns, checks missing values, provides summary stats.
+1. **Network Analysis**  
+   - Section 1: Import Libraries & Logging  
+     - Sets logging, imports standard libraries, and configures global variables and color maps.  
+   - **Section 2: Data Loading & Exploration**  
+     - Loads the dataset(s), explores columns, checks missing values, and provides summary statistics.
 
-### 2. Feature Engineering
-- **Section 3:** [Data Cleaning & Feature Engineering](./plots/S3_durcategory_distribution.png)  
-  Removes redundant columns, creates derived features (`BytesPerSecond`, `PktsPerSecond`, IP entropy), applies categorical encoding.  
-- **Section 4:** [Visualizations](./plots/S4_botnet_distribution.png)  
-  Shows distribution of botnet vs normal traffic, correlation heatmap, and other analyses.
+2. **Feature Engineering**  
+   - Section 3: Data Cleaning & Feature Engineering  
+     - Removes or consolidates certain columns, creates derived features (e.g., BytesPerSecond, PktsPerSecond, IP entropy), applies categorical encoding.  
 
-### 3. Model Development
-- **Section 5:** [Train-Test Split & Multi-Model Pipeline](./plots/S5_confusion_matrix_KNN.png)  
-  Prepares data splits and builds multiple classifiers with GridSearchCV. Logs performance metrics.  
-- **Section 6:** [Model Evaluations](./plots/S6_model_metrics_scaled_line.png)  
-  Compares model metrics, outputs scaled comparison charts, logs summary table of performance.
+3. **Model Development**  
+   - Section 4: Visualizations  
+     - Showcases how features differ for Normal vs. Botnet flows (e.g., violin plots, box plots, correlation heatmap).  
+   - Section 5: Train-Test Split & Multi-Model Pipeline  
+     - Prepares data splits, builds multiple classifiers with GridSearchCV, and logs performance metrics.  
+   - Section 6: Model Evaluations  
+     - Compares model metrics, outputs a scaled comparison chart (line or bar plots), and logs a summary table.  
+   - Section 7: Evaluate KNN on Multiple Datasets  
+     - Demonstrates how a chosen model (KNN) generalizes by applying it to multiple external CTU-13 dataset files and logs final performance metrics for each dataset.
 
-### 4. KNN Evaluation
-- **Section 7:** [Evaluate KNN on Multiple Datasets](./plots/S5_pr_curve_KNN.png)  
-  Demonstrates generalization by applying the KNN model to multiple external CTU-13 scenario files. Logs final performance metrics.
-
-> **Note:** All referenced plot images are saved in the `plots/` directory.  
-
----
-
-**Thank you for reviewing this comprehensive analysis.**  
-Should you have questions or need additional details on methodology or results, please feel free to reach out!  
+*Note: Plots and logs are available in the project directory.*
