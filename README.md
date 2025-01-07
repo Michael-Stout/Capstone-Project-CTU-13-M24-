@@ -161,7 +161,7 @@ The graph shows three main Botnet source IPs connecting to multiple target IPs a
 
 ![Time-based Average Duration Chart (Scaled, All Traffic)](./plots/S2_time_based_avg_dur_all_scaled.png)  
 
-   
+---   
 ## Feature Engineering
 
 ### Section 3: Data Cleaning & Feature Engineering
@@ -288,7 +288,6 @@ Observations
 - Mostly high-entropy flows: Indicating many distinct destinations.  
 - Lower-entropy tail: Some flows concentrate on a single or few repeated destinations, possibly indicating targeted scanning or repeated requests.
 
-
 | Metric | Value                    |
 |:------:|:-------------------------|
 | count  | 10882.0                  |
@@ -386,6 +385,9 @@ Observations
 5. **Box Plot (PktsPerSecond)** – Quickly compares distribution shapes and outliers per class.  
 6. **Strip Plot (BytesPerSecond)** – Granular look at each flow’s throughput, revealing outliers.  
 7. **Violin Plot (BytesPerSecond)** – Density-based distribution reveals how concentrated Botnet flows are near zero.
+---
+
+## Model Development
 
 ### Section 5: Train-Test Split & Multi-Model Pipeline
 
@@ -479,9 +481,9 @@ After creating the train/test split, each model was wrapped in a GridSearchCV pi
 
 This combined approach of a proper train/test split (with numeric encoding and hyperparameter tuning) and well-engineered features produced high-confidence classification metrics for Botnet traffic, addressing data imbalance and subtle differences between malicious and normal flows.
 
-# Section 6: Model Evaluations
+### Section 6: Model Evaluations
 
-## Evaluation Criteria
+### Evaluation Criteria
 
 The cleaned dataset was run through the above model and evaluated on:
 
@@ -491,7 +493,7 @@ The cleaned dataset was run through the above model and evaluated on:
 * **ROC AUC**
 ---
     
-## Naive Bayes
+### Naive Bayes
 
   
 ### Confusion Matrix
@@ -514,7 +516,7 @@ Implies extremely few false positives or false negatives over most decision thre
   
 ### ROC Curve
 
-The AUC (Area Under the Curve) is **1.00**, showing perfect separability on this test set.  
+The AUC (Area Under the Curve) is 1.00, showing perfect separability on this test set.  
 
 Despite its simplifying assumptions, it confirms that Naive Bayes effectively distinguishes botnet from normal traffic in this scenario.
 
@@ -525,7 +527,7 @@ Despite its simplifying assumptions, it confirms that Naive Bayes effectively di
 
 The calibration line (blue squares) closely follows the diagonal, indicating the Naive Bayes probability outputs are well-aligned with true outcome frequencies.  
 
-In many ML scenarios, Naive Bayes probabilities can be skewed, but here they appear quite reliable.
+In many ML scenarios, Naive Bayes probabilities can be skewed, but they appear quite reliable here.
 
 ![Calibration Curve: NaiveBayes](./plots/S5_calibration_NaiveBayes.png)  
 
@@ -534,7 +536,7 @@ In many ML scenarios, Naive Bayes probabilities can be skewed, but here they app
 
 Highlights that by focusing on the top portion of flows ranked by predicted probability, almost all botnet flows are identified with minimal total traffic to review.  
 
-Very similar to the near-vertical rise seen with other high-performing models.
+It is very similar to the near-vertical rise seen with other high-performing models.
 
 ![Gains Chart: NaiveBayes](./plots/S5_gains_NaiveBayes.png)  
 
@@ -610,7 +612,7 @@ Scoring flows by LogisticRegression probability is effective for prioritizing su
 
 ![Top 10 Features (Absolute Coefs): LogisticRegression](./plots/S5_top10_features_LogisticRegression.png)  
 
-- **Analysis**:  
+Analysis  
   - **SrcBytes**, **TotBytes**, and **TotPkts** show the largest absolute coefficient values, strongly influencing log-odds of a flow being botnet vs. normal.  
   - **BytePktRatio** is also substantial, highlighting the ratio of bytes to packets as a key factor.  
   - Additional features (e.g., `State`, `Proto`, `SrcAddrEntropy`) also provide predictive power.
@@ -683,7 +685,7 @@ Demonstrates strong utility for prioritizing suspicious flows.
 
 ![Top 10 Features: GradientBoosting](./plots/S5_top10_features_GradientBoosting.png)  
 
-- **Analysis**:  
+Analysis  
   - **BytePktRatio** dominates, suggesting the ratio of bytes to packets is the primary factor.  
   - Other features (e.g., `SrcAddrEntropy,` `SrcBytes,` `DstAddrEntropy`) appear but have a smaller relative impact.  
   - The model focuses heavily on a few strongly predictive splits.
@@ -757,7 +759,7 @@ Gains approach 100% after reviewing ~20% of flows.
 
 ![Top 10 Features (Absolute Coefs): SVM](./plots/S5_top10_features_SVM.png)  
 
-- **Analysis**:  
+Analysis  
   - **SrcBytes** and **TotPkts** have the largest absolute coefficients, strongly influencing the linear decision boundary.  
   - **BytePktRatio**, **TotBytes**, and **SrcAddrEntropy** also appear prominently.
 
@@ -829,7 +831,7 @@ Approaches 100% of botnet flows by reviewing ~20-25% of total traffic.
 
 ![Top 10 Features: DecisionTree](./plots/S5_top10_features_DecisionTree.png)  
 
-- **Analysis**:  
+Analysis  
   - **BytePktRatio** overwhelmingly dominates feature importance, so most splits rely on the ratio of bytes to packets.  
   - Other features (e.g., `SrcAddrEntropy`, `SrcBytes`) have minimal influence here.
 
@@ -898,7 +900,7 @@ In practice, nearly all botnet flows are captured by reviewing the top ~20% of p
 
 ![Top 10 Features: RandomForest](./plots/S5_top10_features_RandomForest.png)  
 
-- **Analysis**:  
+Analysis  
   - **SrcBytes** is the most important feature, followed by **TotBytes**, **BytePktRatio**, and **BytesPerSecond**.  
   - It reflects that the volume/ratio of traffic heavily influences classification.
 
@@ -991,7 +993,7 @@ KNN is the best-performing model because it achieves near-perfect performance ac
 
 Since the dataset is imbalanced (Botnet flows outnumber Normal flows by about 3:1), the best metric to compare models here is typically one that balances precision and recall, such as F1 score (or closely related metrics like PR AUC/mAP). A high F1 means the model reliably detects Botnet flows without too many false alarms. Although accuracy is high for most models, it can be misleading when imbalanced classes; hence, F1 or mAP are more robust measures for this task.
 
-In this table, KNN maintains perfect precision and very few missed Botnet flows (high recall), leading to an F1 near 0.9994. Combining that with a perfect ROC AUC and mAP underscores KNN’s ability to separate classes with minimal error—even in an imbalanced setting—makes it the top model for Botnet detection.
+In this table, KNN maintains perfect precision and few missed Botnet flows (high recall), leading to an F1 near 0.9994. Combining that with a perfect ROC AUC and mAP underscores KNN’s ability to separate classes with minimal error—even in an imbalanced setting—makes it the top model for Botnet detection.
 
 | Model              | best_params                                                                                              |   train_time_sec |    cv_f1 |   test_accuracy |   test_precision |   test_recall |   test_f1 |   specificity |   test_roc_auc |   log_loss |      mAP | confusion_matrix   |
 |:-------------------|:---------------------------------------------------------------------------------------------------------|-----------------:|---------:|----------------:|-----------------:|--------------:|----------:|--------------:|---------------:|-----------:|---------:|:-------------------|
@@ -1013,7 +1015,7 @@ In this table, KNN maintains perfect precision and very few missed Botnet flows 
 
 ### Best Model Evaluation & Recommendation
 
-## Section 7: Evaluate KNN against all 13 CTU-13 dataset files
+### Section 7: Evaluate KNN against all 13 CTU-13 dataset files
 
 | Dataset                           |   TrainTimeSec |   Accuracy |   Precision |   Recall |       F1 |   Specificity |     LogLoss |      mAP |   ROC_AUC | ConfusionMatrix                |
 |:----------------------------------|---------------:|-----------:|------------:|---------:|---------:|--------------:|------------:|---------:|----------:|:-------------------------------|
@@ -1033,6 +1035,7 @@ In this table, KNN maintains perfect precision and very few missed Botnet flows 
 
 
 ### **Overall Observations**
+
 - **High Accuracy and Precision:**  
   In nearly all datasets, KNN achieves near-perfect performance—often with **100% precision** and extremely high recall. This indicates it seldom misclassifies benign (Normal) traffic as Botnet, which is crucial for reducing false alarms.
 
